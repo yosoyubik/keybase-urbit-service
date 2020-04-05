@@ -1,24 +1,24 @@
 {
-  "version": 1,
-  "domain": "arvo.network",
-  "display_name": "Urbit",
-  "username": {
-    "re": "~(\w{3,6})-?(\w{3,6})?",
-    "min": 4,
-    "max": 14
-  },
-  "brand_color": "#FFB800",
-  "logo": {
-    "svg_black": "https://zod.arvo.network/~keybase/img/small-black-logo.svg",
-    "svg_white": "https://zod.arvo.network/~keybase/img/small-white-logo.svg",
-    "svg_full": "https://zod.arvo.network/~keybase/img/full-color-lightmode-logo.svg",
-    "svg_full_darkmode": "https://zod.arvo.network/~keybase/img/full-color-darkmode-logo.svg"
-  },
-  "description": "Next gen social network using big data & AI in the cloud 🤖☁️.",
-  "prefill_url": "https://zod.arvo.network/~keybase/api/proof?kb_username=%{kb_username}&username=%{username}&token=%{sig_hash}&kb_ua=%{kb_ua}",
-  "profile_url": "https://zod.arvo.network/~keybase/api/profile/%{username}",
-  "check_url": "https://zod.arvo.network/~keybase/api/check/%{username}",
-  "check_path": ["signatures"],
-  "avatar_path": ["https://zod.arvo.network/~keybase/api/avatar/%{username}"],
-  "contact": ["admin@zod.arvo.network", "sassybedazzle@keybase"]
+	"version": 1,
+	"domain": "zod.arvo.network",
+	"display_name": "Urbit",
+	"username": {
+		"re": "~/w{3,13}",
+		"min": 4,
+		"max": 14
+	},
+	"brand_color": "#FFB800",
+	"logo": {
+		"svg_black": "https://zod.arvo.network/~keybase/img/small-black-logo.svg",
+		"svg_white": "https://zod.arvo.network/~keybase/img/small-white-logo.svg",
+		"svg_full": "https://zod.arvo.network/~keybase/img/full-color-lightmode-logo.svg",
+		"svg_full_darkmode": "https://zod.arvo.network/~keybase/img/full-color-darkmode-logo.svg"
+	},
+	"description": "Next gen social network using big data & AI in the cloud 🤖☁️.",
+	"prefill_url": "https://zod.arvo.network/~keybase/api/proof?kb_username=%{kb_username}&username=%{username}&token=%{sig_hash}&kb_ua=%{kb_ua}",
+	"profile_url": "https://zod.arvo.network/~keybase/api/profile/%{username}",
+	"check_url": "https://zod.arvo.network/~keybase/api/check/%{username}",
+	"check_path": ["signatures"],
+	"avatar_path": ["avatar"],
+	"contact": ["admin@zod.arvo.network", "sassybedazzle@keybase"]
 }

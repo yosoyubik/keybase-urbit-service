@@ -1,7 +1,7 @@
 ::  keybase: A Keybase identity service for Urbit
 ::
 ::    data:            scry command:
-::
+::    ------------    ----------------------------------------------
 ::    proof           .^(keybase-proof %gx /=keybase=/proof/noun)
 ::    config          .^(keybase-config %gx /=keybase=/config/noun)
 ::
@@ -120,10 +120,13 @@
     ++  on-arvo
       |=  [=wire =sign-arvo]
       ^-  (quip card _this)
-      ?.  ?=(%bound +<.sign-arvo)
+      ?:  ?=(%bound +<.sign-arvo)
+        [~ this]
+      ?.  ?=(%http-response +<.sign-arvo)
         (on-arvo:def wire sign-arvo)
-      ~&  [wire sign-arvo]
-      [~ this]
+      =^  cards  state
+        (http-response:kc wire client-response.sign-arvo)
+      [cards this]
     ::
     ++  on-save  on-save:def
     ++  on-load  on-load:def
@@ -152,6 +155,14 @@
       %poke
       [%launch-action !>([%keybase /keybasetile '/~keybase/js/tile.js'])]
   ==
+::
+++  save-svg-badge
+  |=  [file=@t data=@t]
+  ^-  card
+  =/  =path
+    [(scot %p our.bowl) %home (scot %da now.bowl) %app %keybase %svg file %svg ~]
+  =/  contents=cage  [%svg !>(data)]
+  [%pass / %arvo %c %info (foal:space:userlib path contents)]
 ::
 ++  handle-json
   |=  jon=json
@@ -183,12 +194,9 @@
     |=  [config=keybase-config badges=(list [@t @t])]
     ^-  (quip card _state)
     :_  state(config config)
-    %+  turn  badges
-    |=  [file=@t data=@t]
-    =/  =path
-      [(scot %p our.bowl) %home (scot %da now.bowl) %app %keybase %svg file %svg ~]
-    =/  contents=cage  [%svg !>(data)]
-    [%pass / %arvo %c %info (foal:space:userlib path contents)]
+    %+  weld
+      (check-keybase:config-json config)
+    (turn badges save-svg-badge)
   --
 ::
 ++  poke-handle-http-request
@@ -243,11 +251,8 @@
     ^-  simple-payload:http
     ~&  file
     =/  svg  (~(get by keybase-svg) file)
-    :: ~&  svg
     ?~  svg
       not-found:gen
-    :: ~&  ^-  manx  u.svg
-    :: not-found:gen
     (svg-response:gen (as-octs:mimes:html u.svg))
   ::
   ++  handle-auth-call
@@ -267,5 +272,72 @@
     ?~  img
       not-found:gen
     (png-response:gen (as-octs:mimes:html u.img))
+  --
+::
+++  config-json
+  |%
+  ++  check-keybase
+    |=  config=keybase-config
+    ^-  (list card)
+    =,  html
+    =/  encoded-json=tape  (en-json (keybase-config-to-json config))
+    =/  =request:http
+      :*  %'POST'
+          'https://keybase.io/_/api/1.0/validate_proof_config.json'
+          ['Content-Type' 'application/x-www-form-urlencoded']~
+        ::
+          %-  some
+          %-  as-octs:mimes
+          %-  crip
+          "config={(en-urlt:html encoded-json)}"
+      ==
+    =/  =path  /check-keybase/(scot %da now.bowl)
+    [%pass path %arvo %i %request request *outbound-config:iris]~
+  ::
+  ++  save
+    |=  =json
+    ^-  card
+    =/  =path
+      /(scot %p our.bowl)/home/(scot %da now.bowl)/app/keybase/config/json
+    =/  contents=cage  [%json !>(json)]
+    [%pass / %arvo %c %info (foal:space:userlib path contents)]
+  --
+::
+++  http-response
+  |=  [=wire response=client-response:iris]
+  ^-  (quip card _state)
+  ::  ignore all but %finished
+  ?.  ?=(%finished -.response)
+    [~ state]
+  ?:  (gth 200 status-code.response-header.response)
+    [~ state]
+  =/  data=(unit mime-data:iris)  full-file.response
+  ?~  data
+    :: data is null
+    [~ state]
+  =/  jon=(unit json)  (de-json:html q.data.u.data)
+  ?~  jon
+     [~ state]
+  =/  res=keybase-response  (json-to-keybase-response u.jon)
+  |^
+  ?+   wire  ~&  "nothing..."  [~ state]
+    [%check-keybase *]  (check-config res)
+  ==
+  ::
+  ++  check-config
+    |=  res=keybase-response
+    ^-  (quip card _state)
+    =/  message=json
+      %-  pairs:enjs:format
+      ?:  =(0 code.res)
+        ~[['out' s+'ok'] ['error' b+%.n]]
+      :~  ['error' b+%.y]
+          :-  'out'
+          ?~  desc.res
+            s+'config error'
+          s+u.desc.res
+      ==
+    :_  state
+    [%give %fact ~[/primary] %json !>(message)]~
   --
 --

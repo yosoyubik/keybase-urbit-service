@@ -30,6 +30,10 @@
             	return module = { exports: {} }, fn(module, module.exports), module.exports;
             }
 
+            function getCjsExportFromNamespace (n) {
+            	return n && n['default'] || n;
+            }
+
             /*
             object-assign
             (c) Sindre Sorhus
@@ -50861,7 +50865,13 @@
               return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isFastBuffer(obj.slice(0, 0))
             }
 
-            var require$$0 = {};
+            var empty = {};
+
+            var empty$1 = /*#__PURE__*/Object.freeze({
+                        'default': empty
+            });
+
+            var require$$0 = getCjsExportFromNamespace(empty$1);
 
             var bn = createCommonjsModule(function (module) {
             (function (module, exports) {
@@ -57461,7 +57471,7 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
                   // Keybase will treat these case-insensitively and will only display usernames
                   // in lowercase.
                   username: {
-                    re: "~(\w{3,6})-?(\w{3,6})?",
+                		re: "~/w{3,13}",
                     min: 4,
                     max: 14
                   },
@@ -57471,13 +57481,13 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
                   // For all SVGs, expand all texts and strokes to shapes.
                   logo: {
                     // A full-black monochrome SVG for light mode. Should look good at 16px square.
-                    svg_black: `${domain}/~keybase/img/${state.badges[0].name}`,
+                    svg_black: `${domain}/~keybase/img/${state.badges[0].name}.svg`,
                     // A full-white monochrome SVG for dark mode. Should look good at 16px square.
-                    svg_white: `${domain}/~keybase/img/${state.badges[1].name}`,
+                    svg_white: `${domain}/~keybase/img/${state.badges[1].name}.svg`,
                     // A full color SVG for light mode. Should look good at 32px square.
-                    svg_full: `${domain}/~keybase/img/${state.badges[2].name}`,
+                    svg_full: `${domain}/~keybase/img/${state.badges[2].name}.svg`,
                     // A full color SVG for dark mode. Should look good at 32px square. (Can be the same as svg_full)
-                    svg_full_darkmode: `${domain}/~keybase/img/${state.badges[3].name}`
+                    svg_full_darkmode: `${domain}/~keybase/img/${state.badges[3].name}.svg`
                   },
                   description: "A clean-slate OS and network for the 21st century",
                   //  All URLs must be on the given `domain` or a subdomain and accessible via HTTPS.
@@ -57486,8 +57496,8 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
                   profile_url: `${domain}/~keybase/api/profile/%{username}`,
                   // Endpoint for checking a user's proofs
                   check_url: `${domain}/~keybase/api/proof-check/%{username}`,
-                  check_path: [""],
-                  avatar_path: [`${domain}/~keybase/avatar/%{username}`],
+                  check_path: ["signatures"],
+                  avatar_path: ["avatar"],
                 };
 
                 this.setState({

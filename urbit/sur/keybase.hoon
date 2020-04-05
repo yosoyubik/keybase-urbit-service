@@ -64,6 +64,10 @@
       contact=(list @t)
   ==
 ::
++$  keybase-response
+  $%  [%status code=@ud name=@t desc=(unit @t)]
+  ==
+::
 +$  keybase-action
   $%  [%add =keybase-proof]
       [%save badges=(list [@t @t]) =keybase-config]
