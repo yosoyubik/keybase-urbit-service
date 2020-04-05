@@ -2,10 +2,11 @@
 ::
 ::    data:            scry command:
 ::
-::    proof           .^(* %gx /=keybase==/proof/noun)
+::    proof           .^(keybase-proof %gx /=keybase=/proof/noun)
+::    config          .^(keybase-config %gx /=keybase=/config/noun)
 ::
 /-  *keybase
-/+  *server, default-agent, verb
+/+  *server, default-agent, verb, *keybase
 ::
 /=  index
   /^  octs
@@ -38,6 +39,9 @@
 /=  keybase-png
   /^  (map knot @)
   /:  /===/app/keybase/img  /_  /png/
+/=  keybase-svg
+  /^  (map knot @)
+  /:  /===/app/keybase/svg  /_  /svg/
 ::  State
 ::
 =>  |%
@@ -68,7 +72,7 @@
     ++  on-init
       ^-  (quip card _this)
       ~&  "innit"
-      :_  this(proof *keybase-proof)
+      :_  this(proof *keybase-proof, config *keybase-config)
       :~  ::  Connects to %launch app
           ::
           launch-poke
@@ -83,6 +87,7 @@
       ?>  (team:title our.bowl src.bowl)
       ?+    mark  (on-poke:def mark vase)
           %json
+        ~&  "got poked"
         =^  cards  state
           (handle-json:kc !<(json vase))
         [cards this]
@@ -104,7 +109,9 @@
       ^-  (quip card:agent:gall _this)
       ?:  ?=([%http-response *] path)
         `this
-      ?.  =(/ path)
+      ~&  path
+      ?.  =(/primary path)
+        ~&  [src.bowl path]
         (on-watch:def path)
       [[%give %fact ~ %json !>(s+'ok')]~ this]
     ::
@@ -128,6 +135,7 @@
       ^-  (unit (unit cage))
       ?+  path  (on-peek:def path)
           [%x %proof ~]  ``noun+!>(proof)
+          [%x %config ~]  ``noun+!>(config)
       ==
     ::
     ++  on-fail   on-fail:def
@@ -142,97 +150,45 @@
       %agent
       [our.bowl %launch]
       %poke
-      [%launch-action !>([%keybase /keybase/tile '/~keybase/js/tile.js'])]
+      [%launch-action !>([%keybase /keybasetile '/~keybase/js/tile.js'])]
   ==
 ::
 ++  handle-json
   |=  jon=json
   ^-  (quip card _state)
-  |^
   ?>  (team:title our.bowl src.bowl)
+  ~&  json+jon
   (handle-keybase-action (json-to-keybase-action jon))
-  ::
-  ++  json-to-keybase-action
-    |=  jon=json
-    ^-  keybase-action
-    =,  dejs:format
-    |^  (parse-json jon)
-    ::
-    ++  parse-json
-      %-  of
-      :~  [%add proof]
-          [%register config]
-          :: [%remove so]
-      ==
-    ::
-    ++  proof
-      %-  ot
-      :~  ['kb_username' so]
-          ['token' so]
-      ==
-    ::
-    ++  config
-      %-  ou
-      :~  ['version' (un so)]
-          ['domain' (un so)]
-          ['display_name' (un so)]
-        ::
-          :-  'username'
-          %-  un
-          %-  ot
-          :~  ['re' so]
-              ['min' ni]
-              ['max' ni]
-          ==
-        ::
-          ['brand_color' (un so)]
-        ::
-          :-  'logo'
-          %-  un
-          %-  ot
-          :~  ['svg_black' so]
-              ['svg_white' so]
-              ['svg_full' so]
-              ['svg_full_darkmode' so]
-          ==
-        ::
-          ['description' (un so)]
-          ['prefill_url' (un so)]
-          ['profile_url' (un so)]
-          ['check_url' (un so)]
-          ['check_path' (un (ar so))]
-          ['avatar_path' (uf ~ (mu (ar so)))]
-          ['contact' (un (ar so))]
-      ==
-    --
-  --
 ::
 ++  handle-keybase-action
   |=  act=keybase-action
   ^-  (quip card _state)
   |^
   ?-  -.act
-      %add       (handle-add keybase-proof.act)
-      %remove    handle-remove
-      %register  (handle-register keybase-config.act)
+      %add     (handle-add keybase-proof.act)
+      %save    (handle-save [keybase-config.act badges.act])
+      %test    [[%pass / %arvo %d %flog [%text (trip +.act)]]~ state]
   ==
   ::
   ++  handle-add
     |=  p=keybase-proof
     ^-  (quip card _state)
-    ?>  (team:title our.bowl src.bowl)
     [~ state(proof p)]
   ::
   ++  handle-remove
     ^-  (quip card _state)
-    ?>  (team:title our.bowl src.bowl)
     [~ state(proof *keybase-proof)]
   ::
-  ++  handle-register
-    |=  c=keybase-config
+  ++  handle-save
+    |=  [config=keybase-config badges=(list [@t @t])]
     ^-  (quip card _state)
-    ?>  (team:title our.bowl src.bowl)
-    [~ state(config c)]
+    :_  state(config config)
+    %+  turn  badges
+    |=  [file=@t data=@t]
+    =/  =path
+      [(scot %p our.bowl) %home (scot %da now.bowl) %app %keybase %svg file %svg ~]
+    =/  contents=cage  [%svg !>(data)]
+    [%pass / %arvo %c %info (foal:space:userlib path contents)]
   --
 ::
 ++  poke-handle-http-request
@@ -242,6 +198,8 @@
   |^
   ?:  ?=([%'~keybase' %api ^] site.url)
     (handle-api-call t.t.site.url)
+  ?:  ?=([%'~keybase' %svg ^] site.url)
+    (handle-svg-call i.t.t.site.url)
   %+  require-authorization:app  inbound-request
   handle-auth-call
   ::
@@ -280,6 +238,18 @@
       (json-response:gen (json-to-octs s+'avatar'))
     --
   ::
+  ++  handle-svg-call
+    |=  file=@t
+    ^-  simple-payload:http
+    ~&  file
+    =/  svg  (~(get by keybase-svg) file)
+    :: ~&  svg
+    ?~  svg
+      not-found:gen
+    :: ~&  ^-  manx  u.svg
+    :: not-found:gen
+    (svg-response:gen (as-octs:mimes:html u.svg))
+  ::
   ++  handle-auth-call
     |=  =inbound-request:eyre
     ^-  simple-payload:http
@@ -287,15 +257,15 @@
         [%'~keybase' %css %index ~]  (css-response:gen style)
         [%'~keybase' %js %tile ~]    (js-response:gen tile-js)
         [%'~keybase' %js %index ~]   (js-response:gen script)
-    ::
-        [%'~keybase' %img @t *]
-      =/  name=@t  i.t.t.site.url
-      =/  img  (~(get by keybase-png) name)
-      ?~  img
-        not-found:gen
-      (png-response:gen (as-octs:mimes:html u.img))
-    ::
-        [%'~keybase' *]  (html-response:gen index)
+        [%'~keybase' %img @t *]      (handle-img-call i.t.t.site.url)
+        [%'~keybase' *]              (html-response:gen index)
     ==
+  ::
+  ++  handle-img-call
+    |=  name=@t
+    =/  img  (~(get by keybase-png) name)
+    ?~  img
+      not-found:gen
+    (png-response:gen (as-octs:mimes:html u.img))
   --
 --

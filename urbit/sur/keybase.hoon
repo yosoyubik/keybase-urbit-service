@@ -16,9 +16,8 @@
       ::  "min": 2,
       ::  "max": 20
       :: },
-      user-name=[re=@t min=@ud max=@ud]
-      :: user-name=@p              ::  ~norsyr-torryn
-      brand-color=@t               ::  #FFB800
+      user-name=[re=@t min=@ud max=@ud]  ::  ~norsyr-torryn
+      brand-color=@t                     ::  #FFB800
     ::
       ::  Your brand logo will appear in various places around the Keybase app.
       ::  Assets will be rehosted by Keybase, so do let us know about updates.
@@ -67,8 +66,8 @@
 ::
 +$  keybase-action
   $%  [%add =keybase-proof]
-      [%register =keybase-config]
-      [%remove ~]
+      [%save badges=(list [@t @t]) =keybase-config]
+      [%test @t]
   ==
 ::
 +$  keybase-update

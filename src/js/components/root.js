@@ -6,6 +6,7 @@ import { api } from '/api';
 import { HeaderBar } from "./lib/header-bar.js"
 import { Skeleton } from '/components/skeleton';
 import { NewScreen } from '/components/new';
+import { ConfigScreen } from '/components/config';
 
 
 export class Root extends Component {
@@ -48,6 +49,20 @@ export class Root extends Component {
                   api={api}
                   activeDrawer="rightPanel">
                   <NewScreen
+                    history={props.history}
+                    api={api}
+                  />
+                </Skeleton>
+              );
+          }} />
+          <Route exact path="/~keybase/config"
+            render={ (props) => {
+              return (
+                <Skeleton
+                  history={props.history}
+                  api={api}
+                  activeDrawer="rightPanel">
+                  <ConfigScreen
                     history={props.history}
                     api={api}
                   />

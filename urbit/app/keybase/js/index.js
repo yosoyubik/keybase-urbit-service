@@ -1,10 +1,7 @@
-(function (global, factory) {
-            typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('buffer')) :
-            typeof define === 'function' && define.amd ? define('index', ['buffer'], factory) :
-            (global = global || self, factory(global.buffer));
-}(this, function (buffer) { 'use strict';
-
-            buffer = buffer && buffer.hasOwnProperty('default') ? buffer['default'] : buffer;
+(function (factory) {
+            typeof define === 'function' && define.amd ? define('index', factory) :
+            factory();
+}(function () { 'use strict';
 
             var global$1 = (typeof global !== "undefined" ? global :
                         typeof self !== "undefined" ? self :
@@ -44521,12 +44518,17 @@
               setAuthTokens(authTokens) {
                 this.authTokens = authTokens;
                 this.bindPaths = [];
+
+                this.config = {
+                  save: this.configSave.bind(this),
+                  test: this.test.bind(this)
+                };
               }
 
               bind(path, method, ship = this.authTokens.ship, appl = "keybase", success, fail) {
                 this.bindPaths = lodash.uniq([...this.bindPaths, path]);
 
-                window.subscriptionId = window.urb.subscribe(ship, appl, path, 
+                window.subscriptionId = window.urb.subscribe(ship, appl, path,
                   (err) => {
                     fail(err);
                   },
@@ -44553,12 +44555,33 @@
                   window.urb.poke(ship, appl, mark, data,
                     (json) => {
                       resolve(json);
-                    }, 
+                    },
                     (err) => {
                       reject(err);
                     });
                 });
               }
+
+              configSave(config, badges) {
+                console.log(config, badges);
+                return this.action("keybase", "keybase-action", {
+                  save: {
+                    config: config,
+                    badges: badges
+                  }
+                });
+              }
+
+              test() {
+                return this.action("keybase", "keybase-action", {test: "test"});
+              }
+
+              // configRemove() {
+              //   return this.action("keybase", "keybase-action", {
+              //     remove: { members: ships, path }
+              //   })
+              // }
+
             }
             let api$1 = new UrbitApi();
             window.api = api$1;
@@ -50838,6 +50861,8 @@
               return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isFastBuffer(obj.slice(0, 0))
             }
 
+            var require$$0 = {};
+
             var bn = createCommonjsModule(function (module) {
             (function (module, exports) {
 
@@ -50890,7 +50915,7 @@
 
               var Buffer;
               try {
-                Buffer = buffer.Buffer;
+                Buffer = require$$0.Buffer;
               } catch (e) {
               }
 
@@ -57376,6 +57401,60 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
                 this.state = {
                   version: 1,
                   domain: "",
+                  // A contact for Keybase in case of issues.
+                  contact: "",
+                  badges: [
+                    {name: 'small-black-logo', size: 16, colors:['black', 'white']},
+                    {name: 'small-white-logo', size: 16, colors:['white', 'black']},
+                    {name: 'full-color-lightmode-logo', size: 32, colors:['black', 'white']},
+                    {name: 'full-color-darkmode-logo', size: 32, colors:['white', 'black']}
+                  ]
+                };
+
+                this.domainChange = this.domainChange.bind(this);
+                this.contactEmailChange = this.contactEmailChange.bind(this);
+              }
+
+              convertToBase64(spec, index) {
+                // convert from svg string
+                const svgString = dist_3({
+                  patp: ship,
+                  renderer: dist_4,
+                  size: spec.size,
+                  colors: spec.colors,
+                });
+                const svgDocument = new DOMParser().parseFromString(svgString, 'image/svg+xml');
+                svgDocument.documentElement.width.baseVal.valueAsString = `${spec.size}px`;
+                svgDocument.documentElement.height.baseVal.valueAsString = `${spec.size}px`;
+                const base64EncodedSVG = btoa(
+                  new XMLSerializer().serializeToString(svgDocument)
+                );
+                const serializedXML = new XMLSerializer().serializeToString(svgDocument);
+                console.log(serializedXML);
+                // this[index] = {name: spec.name, data:base64EncodedSVG};
+                this[index] = {name: spec.name, data: serializedXML};
+              }
+
+              domainChange(event) {
+                this.setState({domain: event.target.value});
+              }
+
+              contactEmailChange(event) {
+                this.setState({contact: event.target.value});
+              }
+
+              async onClickCreate() {
+                const { props, state } = this;
+                const domain = state.domain.replace(/\/+$/, "");
+                console.log(state);
+
+                const badges = state.badges.slice();
+                badges.forEach(this.convertToBase64, badges);
+
+                const config = {
+                  domain: domain,
+                  contact: [state.contact],
+                  version: "1",
                   display_name: "Urbit",
                   // A regex for validating usernames on Bee Activists in the re2 format
                   // https://github.com/google/re2/wiki/Syntax (inline flags, like for case-insensitivity, are not supported).
@@ -57392,110 +57471,73 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
                   // For all SVGs, expand all texts and strokes to shapes.
                   logo: {
                     // A full-black monochrome SVG for light mode. Should look good at 16px square.
-                    svg_black: "https://beeactivists.com/small-black-logo.svg",
+                    svg_black: `${domain}/~keybase/img/${state.badges[0].name}`,
                     // A full-white monochrome SVG for dark mode. Should look good at 16px square.
-                    svg_white: "https://beeactivists.com/small-white-logo.svg",
+                    svg_white: `${domain}/~keybase/img/${state.badges[1].name}`,
                     // A full color SVG for light mode. Should look good at 32px square.
-                    svg_full: "https://beeactivists.com/full-color-lightmode-logo.svg",
+                    svg_full: `${domain}/~keybase/img/${state.badges[2].name}`,
                     // A full color SVG for dark mode. Should look good at 32px square. (Can be the same as svg_full)
-                    svg_full_darkmode: "https://beeactivists.com/full-color-darkmode-logo.svg"
+                    svg_full_darkmode: `${domain}/~keybase/img/${state.badges[3].name}`
                   },
                   description: "A clean-slate OS and network for the 21st century",
                   //  All URLs must be on the given `domain` or a subdomain and accessible via HTTPS.
-                  prefill_url: "https://zod.arvo.network/~keybase/proof?kb_username=%{kb_username}&username=%{username}&token=%{sig_hash}&kb_ua=%{kb_ua}",
+                  prefill_url: `${domain}/~keybase/api/proof?kb_username=%{kb_username}&username=%{username}&token=%{sig_hash}&kb_ua=%{kb_ua}`,
                   // Link to a profile page, for when users click from inside Keybase
-                  profile_url: "https://zod.arvo.network/~keybase/profile/%{username}",
+                  profile_url: `${domain}/~keybase/api/profile/%{username}`,
                   // Endpoint for checking a user's proofs
-                  check_url: "https://zod.arvo.network/~keybase/proof-check/%{username}",
-                  check_path: ["signatures"],
-                  avatar_path: ["https://zod.arvo.network/~keybase/avatar/%{username}"],
-                  // A contact for Keybase in case of issues.
-                  contact: []
+                  check_url: `${domain}/~keybase/api/proof-check/%{username}`,
+                  check_path: [""],
+                  avatar_path: [`${domain}/~keybase/avatar/%{username}`],
                 };
-                this.domainChange = this.domainChange.bind(this);
-                this.contactEmailChange = this.contactEmailChange.bind(this);
-              }
 
-
-              domainChange(event) {
-                this.setState({domain: event.target.value});
-              }
-
-              contactEmailChange(event) {
-                this.setState({contact: event.target.value});
-              }
-
-              onClickCreate() {
-                const { props, state } = this;
-
-                if (!state.groupName) {
-                  this.setState({
-                    groupNameError: true
-                  });
-                  return;
-                }
-
-                let group = `/~${window.ship}` + `/${state.groupName}`;
-                let aud = state.invites.ships.map(ship => `~${ship}`);
-
-                if (this.textarea) {
-                  this.textarea.value = '';
-                }
                 this.setState({
                   error: false,
                   success: true,
-                  invites: '',
                   awaiting: true
                 }, () => {
-                  props.api.contactView.create(
-                    group,
-                    aud,
-                    this.state.title,
-                    this.state.description
-                    ).then(() => {
+                  props.api.config.save(config,badges)
+                    .then(() => {
                     this.setState({awaiting: false});
-                    props.history.push(`/~groups${group}`);
+                    props.history.push(`/~keybase/config`);
                   });
                 });
               }
 
               render() {
-                let displayNameErrElem = (react.createElement('span', {__self: this, __source: {fileName: _jsxFileName$6, lineNumber: 98}} ));
+                let displayNameErrElem = (react.createElement('span', {__self: this, __source: {fileName: _jsxFileName$6, lineNumber: 118}} ));
                 if (this.state.displayNameError) {
                   displayNameErrElem = (
-                    react.createElement('span', { className: "f9 inter red2 ml3 mt1 db"     , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 101}}, "Keybase Identity Service must have a name."
+                    react.createElement('span', { className: "f9 inter red2 ml3 mt1 db"     , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 121}}, "Keybase Identity Service must have a name."
 
                     )
                     );
                 }
 
-                let domainErrElem = (react.createElement('span', {__self: this, __source: {fileName: _jsxFileName$6, lineNumber: 107}} ));
+                let domainErrElem = (react.createElement('span', {__self: this, __source: {fileName: _jsxFileName$6, lineNumber: 127}} ));
                 if (this.state.domainError) {
                   domainErrElem = (
-                    react.createElement('span', { className: "f9 inter red2 ml3 mt1 db"     , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 110}}, "Keybase Identity Service must have a contact email."
+                    react.createElement('span', { className: "f9 inter red2 ml3 mt1 db"     , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 130}}, "Keybase Identity Service must have a contact email."
 
                     )
                     );
                 }
 
                 return (
-                  react.createElement('div', { className: "h-100 w-100 mw6 pa3 pt4 overflow-x-hidden bg-gray0-d white-d flex flex-column"         , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 117}}
-                    , react.createElement('div', { className: "w-100 dn-m dn-l dn-xl inter pt1 pb6 f8"       , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 118}}
-                      , react.createElement(Link, { to: "/~keybase/", __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 119}}, "⟵ All Groups")
+                  react.createElement('div', { className: "h-100 w-100 mw6 pa3 pt4 overflow-x-hidden bg-gray0-d white-d flex flex-column"         , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 137}}
+                    , react.createElement('div', { className: "w-100 dn-m dn-l dn-xl inter pt1 pb6 f8"       , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 138}}
+                      , react.createElement(Link, { to: "/~keybase/", __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 139}}, "⟵ All Groups")
                     )
-                    , react.createElement('div', { className: "w-100 mb4 pr6 pr0-l pr0-xl"    , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 121}}
+                    , react.createElement('div', { className: "w-100 mb4 pr6 pr0-l pr0-xl"    , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 141}}
 
-                    , react.createElement('div', { className: "fl ma2 bg-white bg-gray0-d white-d overflow-hidden " +
-                    "ba b--black b--gray1-d pa2 w-100 lh-copy", __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 123}}
-                      , react.createElement('p', { className: "f9", __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 125}}, "To send us the config, you can send us the public URL for your config file or attach it directly in a Keybase chat message to @mlsteele or email miles@keyba.se."                             )
-                      , react.createElement('p', { className: "f9 pt2" , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 126}}, "In our example the file is hosted at https://keybase.io/.well-known/example-proof-config.json."        )
-                    )
+                      , react.createElement('div', { className: "fl ma2 bg-white bg-gray0-d white-d overflow-hidden " +
+                      "ba b--black b--gray1-d pa2 w-100 lh-copy", __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 143}}
+                        , react.createElement('p', { className: "f9", __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 145}}, "To send us the config, you can send us the public URL for your config file or attach it directly in a Keybase chat message to @mlsteele or email miles@keyba.se."                             )
+                        , react.createElement('p', { className: "f9 pt2" , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 146}}, "In our example the file is hosted at https://keybase.io/.well-known/example-proof-config.json."        )
+                      )
 
+                      , react.createElement('h2', { className: "f8 pt6" , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 149}}, "Create Keybase Config"  )
 
-
-                      , react.createElement('h2', { className: "f8", __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 131}}, "Create Keybase Config"  )
-
-                      , react.createElement('h2', { className: "f8 pt6" , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 133}}, "Domain")
+                      , react.createElement('h2', { className: "f8", __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 151}}, "Domain")
                       , react.createElement('textarea', {
                         className: 
                           "f7 ba b--gray3 b--gray2-d bg-gray0-d white-d pa3 db w-100 mt2 " +
@@ -57508,15 +57550,15 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
                           height: 48,
                           paddingTop: 14
                         },
-                        onChange: this.domainChange, __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 134}}
+                        onChange: this.domainChange, __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 152}}
                       )
                       , domainErrElem
 
-                      , react.createElement('h2', { className: "f8 pt6" , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 150}}, "Contact Email" )
+                      , react.createElement('h2', { className: "f8 pt6" , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 168}}, "Contact Email" )
                       , react.createElement('textarea', {
                         className: 
                           "f7 ba b--gray3 b--gray2-d bg-gray0-d white-d pa3 db w-100 mt2 " +
-                          "focus-b--black focus-b--white-d pb6"
+                          "focus-b--black focus-b--white-d"
                         ,
                         rows: 1,
                         placeholder: `contact@${ship}.arvo.network`,
@@ -57525,17 +57567,17 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
                           height: 48,
                           paddingTop: 14
                         },
-                        onChange: this.contactEmailChange, __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 151}}
+                        onChange: this.contactEmailChange, __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 169}}
                       )
                       , domainErrElem
 
                       , react.createElement('button', {
                         onClick: this.onClickCreate.bind(this),
-                        className: "f9 ba pa2 b--green2 green2 pointer bg-transparent"      , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 167}}, "Save Keybase Config"
+                        className: "f9 ba pa2 b--green2 green2 pointer bg-transparent"      , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 185}}, "Save Keybase Config"
 
                       )
-                      , react.createElement(Link, { to: "/~keybase", __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 172}}
-                        , react.createElement('button', { className: "f9 ml3 ba pa2 b--black pointer bg-transparent b--white-d white-d"        , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 173}}, "Cancel")
+                      , react.createElement(Link, { to: "/~keybase", __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 190}}
+                        , react.createElement('button', { className: "f9 ml3 ba pa2 b--black pointer bg-transparent b--white-d white-d"        , __self: this, __source: {fileName: _jsxFileName$6, lineNumber: 191}}, "Cancel")
                       )
                     )
                   )
@@ -57543,7 +57585,57 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
               }
             }
 
-            const _jsxFileName$7 = "/Users/jose/urbit/keybase/src/js/components/root.js";
+            const _jsxFileName$7 = "/Users/jose/urbit/keybase/src/js/components/config.js";
+            class ConfigScreen extends react_1 {
+              constructor(props) {
+                super(props);
+
+                this.state = {
+                  version: 1,
+                  domain: "",
+                  // A contact for Keybase in case of issues.
+                  contact: ""
+                };
+              }
+
+              render() {
+                let displayNameErrElem = (react.createElement('span', {__self: this, __source: {fileName: _jsxFileName$7, lineNumber: 21}} ));
+                if (this.state.displayNameError) {
+                  displayNameErrElem = (
+                    react.createElement('span', { className: "f9 inter red2 ml3 mt1 db"     , __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 24}}, "Keybase Identity Service must have a name."
+
+                    )
+                    );
+                }
+
+                let domainErrElem = (react.createElement('span', {__self: this, __source: {fileName: _jsxFileName$7, lineNumber: 30}} ));
+                if (this.state.domainError) {
+                  domainErrElem = (
+                    react.createElement('span', { className: "f9 inter red2 ml3 mt1 db"     , __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 33}}, "Keybase Identity Service must have a contact email."
+
+                    )
+                    );
+                }
+
+                return (
+                  react.createElement('div', { className: "h-100 w-100 mw6 pa3 pt4 overflow-x-hidden bg-gray0-d white-d flex flex-column"         , __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 40}}
+                    , react.createElement('div', { className: "w-100 dn-m dn-l dn-xl inter pt1 pb6 f8"       , __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 41}}
+                      , react.createElement(Link, { to: "/~keybase/", __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 42}}, "⟵ All Groups")
+                    )
+                    , react.createElement('div', { className: "w-100 mb4 pr6 pr0-l pr0-xl"    , __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 44}}
+
+                      , react.createElement('div', { className: "fl ma2 bg-white bg-gray0-d white-d overflow-hidden " +
+                      "ba b--black b--gray1-d pa2 w-100 lh-copy", __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 46}}
+                        , react.createElement('p', { className: "f9", __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 48}}, "To send us the config, you can send us the public URL for your config file or attach it directly in a Keybase chat message to @mlsteele or email miles@keyba.se."                             )
+                        , react.createElement('p', { className: "f9 pt2" , __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 49}}, "In our example the file is hosted at https://keybase.io/.well-known/example-proof-config.json."        )
+                      )
+                    )
+                  )
+                );
+              }
+            }
+
+            const _jsxFileName$8 = "/Users/jose/urbit/keybase/src/js/components/root.js";
 
             class Root extends react_1 {
               constructor(props) {
@@ -57557,39 +57649,53 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
               render() {
 
                 return (
-                  react.createElement(BrowserRouter, {__self: this, __source: {fileName: _jsxFileName$7, lineNumber: 24}}
-                    , react.createElement('div', { className: "h-100 w-100" , __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 25}}
+                  react.createElement(BrowserRouter, {__self: this, __source: {fileName: _jsxFileName$8, lineNumber: 25}}
+                    , react.createElement('div', { className: "h-100 w-100" , __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 26}}
                       , react.createElement(Route, { exact: true, path: "/~keybase",
                         render:  (props) => {
                           return (
                             react.createElement(Skeleton, {
                               activeDrawer: "keybase",
                               history: props.history,
-                              api: api$1, __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 29}}
-                              , react.createElement('div', { className: "h-100 w-100 overflow-x-hidden bg-white bg-gray0-d dn db-ns"      , __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 33}}
-                                , react.createElement('div', { className: "pl3 pr3 pt2 dt pb3 w-100 h-100"      , __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 34}}
-                                  , react.createElement('p', { className: "f9 pt3 gray2 w-100 h-100 dtc v-mid tc"       , __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 35}}, "Create a config to begin cliking on \"Create Config\"."
+                              api: api$1, __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 30}}
+                              , react.createElement('div', { className: "h-100 w-100 overflow-x-hidden bg-white bg-gray0-d dn db-ns"      , __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 34}}
+                                , react.createElement('div', { className: "pl3 pr3 pt2 dt pb3 w-100 h-100"      , __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 35}}
+                                  , react.createElement('p', { className: "f9 pt3 gray2 w-100 h-100 dtc v-mid tc"       , __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 36}}, "Create a config to begin cliking on \"Create Config\"."
 
                                   )
                                 )
                               )
                             )
                           );
-                        }, __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 26}} )
+                        }, __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 27}} )
                       , react.createElement(Route, { exact: true, path: "/~keybase/new",
                         render:  (props) => {
                           return (
                             react.createElement(Skeleton, {
                               history: props.history,
                               api: api$1,
-                              activeDrawer: "rightPanel", __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 46}}
+                              activeDrawer: "rightPanel", __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 47}}
                               , react.createElement(NewScreen, {
                                 history: props.history,
-                                api: api$1, __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 50}}
+                                api: api$1, __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 51}}
                               )
                             )
                           );
-                      }, __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 43}} )
+                      }, __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 44}} )
+                      , react.createElement(Route, { exact: true, path: "/~keybase/config",
+                        render:  (props) => {
+                          return (
+                            react.createElement(Skeleton, {
+                              history: props.history,
+                              api: api$1,
+                              activeDrawer: "rightPanel", __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 61}}
+                              , react.createElement(ConfigScreen, {
+                                history: props.history,
+                                api: api$1, __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 65}}
+                              )
+                            )
+                          );
+                      }, __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 58}} )
                     )
                   )
                 );
@@ -57598,16 +57704,18 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
 
             class Subscription {
               start() {
-                if (api$1.authTokens) ; else {
+                if (api$1.authTokens) {
+                  this.initializekeybase();
+                } else {
                   console.error("~~~ ERROR: Must set api.authTokens before operation ~~~");
                 }
               }
 
-              // initializekeybase() {
-              //   api.bind('/primary', 'PUT', api.authTokens.ship, 'keybase',
-              //     this.handleEvent.bind(this),
-              //     this.handleError.bind(this));
-              // }
+              initializekeybase() {
+                api$1.bind('/primary', 'PUT', api$1.authTokens.ship, 'keybase',
+                  this.handleEvent.bind(this),
+                  this.handleError.bind(this));
+              }
 
               handleEvent(diff) {
                 store.handleEvent(diff);
@@ -57623,7 +57731,7 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
 
             let subscription = new Subscription();
 
-            const _jsxFileName$8 = "/Users/jose/urbit/keybase/src/index.js";
+            const _jsxFileName$9 = "/Users/jose/urbit/keybase/src/index.js";
             api$1.setAuthTokens({
               ship: window.ship
             });
@@ -57631,7 +57739,7 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
             subscription.start();
 
             reactDom.render((
-              react.createElement(Root, {__self: undefined, __source: {fileName: _jsxFileName$8, lineNumber: 15}} )
+              react.createElement(Root, {__self: undefined, __source: {fileName: _jsxFileName$9, lineNumber: 15}} )
             ), document.querySelectorAll("#root")[0]);
 
 }));

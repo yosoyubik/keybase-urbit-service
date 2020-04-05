@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 
 import { Route, Link } from 'react-router-dom';
+import { sigil, stringRenderer } from 'urbit-sigil-js'
 import { deSig } from '/lib/util';
 import urbitOb from 'urbit-ob';
 
@@ -11,6 +12,60 @@ export class NewScreen extends Component {
     this.state = {
       version: 1,
       domain: "",
+      // A contact for Keybase in case of issues.
+      contact: "",
+      badges: [
+        {name: 'small-black-logo', size: 16, colors:['black', 'white']},
+        {name: 'small-white-logo', size: 16, colors:['white', 'black']},
+        {name: 'full-color-lightmode-logo', size: 32, colors:['black', 'white']},
+        {name: 'full-color-darkmode-logo', size: 32, colors:['white', 'black']}
+      ]
+    }
+
+    this.domainChange = this.domainChange.bind(this);
+    this.contactEmailChange = this.contactEmailChange.bind(this);
+  }
+
+  convertToBase64(spec, index) {
+    // convert from svg string
+    const svgString = sigil({
+      patp: ship,
+      renderer: stringRenderer,
+      size: spec.size,
+      colors: spec.colors,
+    });
+    const svgDocument = new DOMParser().parseFromString(svgString, 'image/svg+xml')
+    svgDocument.documentElement.width.baseVal.valueAsString = `${spec.size}px`
+    svgDocument.documentElement.height.baseVal.valueAsString = `${spec.size}px`
+    const base64EncodedSVG = btoa(
+      new XMLSerializer().serializeToString(svgDocument)
+    );
+    const serializedXML = new XMLSerializer().serializeToString(svgDocument);
+    console.log(serializedXML);
+    // this[index] = {name: spec.name, data:base64EncodedSVG};
+    this[index] = {name: spec.name, data: serializedXML};
+  }
+
+  domainChange(event) {
+    this.setState({domain: event.target.value});
+  }
+
+  contactEmailChange(event) {
+    this.setState({contact: event.target.value});
+  }
+
+  async onClickCreate() {
+    const { props, state } = this;
+    const domain = state.domain.replace(/\/+$/, "");
+    console.log(state);
+
+    const badges = state.badges.slice();
+    badges.forEach(this.convertToBase64, badges);
+
+    const config = {
+      domain: domain,
+      contact: [state.contact],
+      version: "1",
       display_name: "Urbit",
       // A regex for validating usernames on Bee Activists in the re2 format
       // https://github.com/google/re2/wiki/Syntax (inline flags, like for case-insensitivity, are not supported).
@@ -27,69 +82,34 @@ export class NewScreen extends Component {
       // For all SVGs, expand all texts and strokes to shapes.
       logo: {
         // A full-black monochrome SVG for light mode. Should look good at 16px square.
-        svg_black: "https://beeactivists.com/small-black-logo.svg",
+        svg_black: `${domain}/~keybase/img/${state.badges[0].name}`,
         // A full-white monochrome SVG for dark mode. Should look good at 16px square.
-        svg_white: "https://beeactivists.com/small-white-logo.svg",
+        svg_white: `${domain}/~keybase/img/${state.badges[1].name}`,
         // A full color SVG for light mode. Should look good at 32px square.
-        svg_full: "https://beeactivists.com/full-color-lightmode-logo.svg",
+        svg_full: `${domain}/~keybase/img/${state.badges[2].name}`,
         // A full color SVG for dark mode. Should look good at 32px square. (Can be the same as svg_full)
-        svg_full_darkmode: "https://beeactivists.com/full-color-darkmode-logo.svg"
+        svg_full_darkmode: `${domain}/~keybase/img/${state.badges[3].name}`
       },
       description: "A clean-slate OS and network for the 21st century",
       //  All URLs must be on the given `domain` or a subdomain and accessible via HTTPS.
-      prefill_url: "https://zod.arvo.network/~keybase/proof?kb_username=%{kb_username}&username=%{username}&token=%{sig_hash}&kb_ua=%{kb_ua}",
+      prefill_url: `${domain}/~keybase/api/proof?kb_username=%{kb_username}&username=%{username}&token=%{sig_hash}&kb_ua=%{kb_ua}`,
       // Link to a profile page, for when users click from inside Keybase
-      profile_url: "https://zod.arvo.network/~keybase/profile/%{username}",
+      profile_url: `${domain}/~keybase/api/profile/%{username}`,
       // Endpoint for checking a user's proofs
-      check_url: "https://zod.arvo.network/~keybase/proof-check/%{username}",
-      check_path: ["signatures"],
-      avatar_path: ["https://zod.arvo.network/~keybase/avatar/%{username}"],
-      // A contact for Keybase in case of issues.
-      contact: []
-    }
-    this.domainChange = this.domainChange.bind(this);
-    this.contactEmailChange = this.contactEmailChange.bind(this);
-  }
-
-
-  domainChange(event) {
-    this.setState({domain: event.target.value});
-  }
-
-  contactEmailChange(event) {
-    this.setState({contact: event.target.value});
-  }
-
-  onClickCreate() {
-    const { props, state } = this;
-
-    if (!state.groupName) {
-      this.setState({
-        groupNameError: true
-      });
-      return;
+      check_url: `${domain}/~keybase/api/proof-check/%{username}`,
+      check_path: [""],
+      avatar_path: [`${domain}/~keybase/avatar/%{username}`],
     }
 
-    let group = `/~${window.ship}` + `/${state.groupName}`;
-    let aud = state.invites.ships.map(ship => `~${ship}`);
-
-    if (this.textarea) {
-      this.textarea.value = '';
-    }
     this.setState({
       error: false,
       success: true,
-      invites: '',
       awaiting: true
     }, () => {
-      props.api.contactView.create(
-        group,
-        aud,
-        this.state.title,
-        this.state.description
-        ).then(() => {
+      props.api.config.save(config,badges)
+        .then(() => {
         this.setState({awaiting: false});
-        props.history.push(`/~groups${group}`);
+        props.history.push(`/~keybase/config`);
       })
     });
   }
@@ -120,17 +140,15 @@ export class NewScreen extends Component {
         </div>
         <div className="w-100 mb4 pr6 pr0-l pr0-xl">
 
-        <div className={"fl ma2 bg-white bg-gray0-d white-d overflow-hidden " +
-        "ba b--black b--gray1-d pa2 w-100 lh-copy"}>
-          <p className="f9">To send us the config, you can send us the public URL for your config file or attach it directly in a Keybase chat message to @mlsteele or email miles@keyba.se.</p>
-          <p className="f9 pt2">In our example the file is hosted at https://keybase.io/.well-known/example-proof-config.json.</p>
-        </div>
+          <div className={"fl ma2 bg-white bg-gray0-d white-d overflow-hidden " +
+          "ba b--black b--gray1-d pa2 w-100 lh-copy"}>
+            <p className="f9">To send us the config, you can send us the public URL for your config file or attach it directly in a Keybase chat message to @mlsteele or email miles@keyba.se.</p>
+            <p className="f9 pt2">In our example the file is hosted at https://keybase.io/.well-known/example-proof-config.json.</p>
+          </div>
 
+          <h2 className="f8 pt6">Create Keybase Config</h2>
 
-
-          <h2 className="f8">Create Keybase Config</h2>
-
-          <h2 className="f8 pt6">Domain</h2>
+          <h2 className="f8">Domain</h2>
           <textarea
             className={
               "f7 ba b--gray3 b--gray2-d bg-gray0-d white-d pa3 db w-100 mt2 " +
@@ -151,7 +169,7 @@ export class NewScreen extends Component {
           <textarea
             className={
               "f7 ba b--gray3 b--gray2-d bg-gray0-d white-d pa3 db w-100 mt2 " +
-              "focus-b--black focus-b--white-d pb6"
+              "focus-b--black focus-b--white-d"
             }
             rows={1}
             placeholder={`contact@${ship}.arvo.network`}

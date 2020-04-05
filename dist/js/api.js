@@ -6,12 +6,17 @@ class UrbitApi {
   setAuthTokens(authTokens) {
     this.authTokens = authTokens;
     this.bindPaths = [];
+
+    this.config = {
+      save: this.configSave.bind(this),
+      test: this.test.bind(this)
+    };
   }
 
   bind(path, method, ship = this.authTokens.ship, appl = "keybase", success, fail) {
     this.bindPaths = _.uniq([...this.bindPaths, path]);
 
-    window.subscriptionId = window.urb.subscribe(ship, appl, path, 
+    window.subscriptionId = window.urb.subscribe(ship, appl, path,
       (err) => {
         fail(err);
       },
@@ -38,12 +43,33 @@ class UrbitApi {
       window.urb.poke(ship, appl, mark, data,
         (json) => {
           resolve(json);
-        }, 
+        },
         (err) => {
           reject(err);
         });
     });
   }
+
+  configSave(config, badges) {
+    console.log(config, badges);
+    return this.action("keybase", "keybase-action", {
+      save: {
+        config: config,
+        badges: badges
+      }
+    });
+  }
+
+  test() {
+    return this.action("keybase", "keybase-action", {test: "test"});
+  }
+
+  // configRemove() {
+  //   return this.action("keybase", "keybase-action", {
+  //     remove: { members: ships, path }
+  //   })
+  // }
+
 }
 export let api = new UrbitApi();
 window.api = api;

@@ -7,17 +7,17 @@ import urbitOb from 'urbit-ob';
 export class Subscription {
   start() {
     if (api.authTokens) {
-      // this.initializekeybase();
+      this.initializekeybase();
     } else {
       console.error("~~~ ERROR: Must set api.authTokens before operation ~~~");
     }
   }
 
-  // initializekeybase() {
-  //   api.bind('/primary', 'PUT', api.authTokens.ship, 'keybase',
-  //     this.handleEvent.bind(this),
-  //     this.handleError.bind(this));
-  // }
+  initializekeybase() {
+    api.bind('/primary', 'PUT', api.authTokens.ship, 'keybase',
+      this.handleEvent.bind(this),
+      this.handleError.bind(this));
+  }
 
   handleEvent(diff) {
     store.handleEvent(diff);
