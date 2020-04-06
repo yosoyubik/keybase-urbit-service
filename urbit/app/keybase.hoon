@@ -245,6 +245,8 @@
     ++  handle-check
       |=  user=@t
       ^-  simple-payload:http
+      ?:  =(user (scot %p our.bowl))
+        not-found:gen
       =/  signatures=(list keybase-proof)  ~(val by proofs)
       =;  =json
         (json-response:gen (json-to-octs json))
