@@ -1,7 +1,7 @@
 ::  Types
 ::
 |%
-+$  keybase-proof  [keybase-username=@t token=@t]
++$  keybase-proof  [user=@t token=@t]
 ::
 +$  keybase-config
   $:  version=@t                :: 1
@@ -66,10 +66,11 @@
 ::
 +$  keybase-response
   $%  [%status code=@ud name=@t desc=(unit @t)]
+      [%valid ?]
   ==
 ::
 +$  keybase-action
-  $%  [%add =keybase-proof]
+  $%  [%add proof=keybase-proof]
       [%save badges=(list [@t @t]) =keybase-config]
       [%test @t]
   ==

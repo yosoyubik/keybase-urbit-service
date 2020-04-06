@@ -94,9 +94,10 @@
       ::
           %handle-http-request
         =+  !<([eyre-id=@ta =inbound-request:eyre] vase)
+        =+  url=(parse-request-line url.request.inbound-request)
         :_  this
         %+  give-simple-payload:app  eyre-id
-        (poke-handle-http-request:kc inbound-request)
+        (poke-handle-http-request:kc inbound-request site.url)
       ::
           %keybase-action
         =^  cards  state
@@ -176,7 +177,7 @@
   ^-  (quip card _state)
   |^
   ?-  -.act
-      %add     (handle-add keybase-proof.act)
+      %add     (handle-add proof.act)
       %save    (handle-save [keybase-config.act badges.act])
       %test    [[%pass / %arvo %d %flog [%text (trip +.act)]]~ state]
   ==
@@ -184,7 +185,8 @@
   ++  handle-add
     |=  p=keybase-proof
     ^-  (quip card _state)
-    [~ state(proof p)]
+    :_  state(proof p)
+    (validate:proof-keybase p)
   ::
   ++  handle-remove
     ^-  (quip card _state)
@@ -195,19 +197,18 @@
     ^-  (quip card _state)
     :_  state(config config)
     %+  weld
-      (check-keybase:config-json config)
+      (check:config-keybase config)
     (turn badges save-svg-badge)
   --
 ::
 ++  poke-handle-http-request
-  |=  =inbound-request:eyre
+  |=  [=inbound-request:eyre url=(list @t)]
   ^-  simple-payload:http
-  =+  url=(parse-request-line url.request.inbound-request)
   |^
-  ?:  ?=([%'~keybase' %api ^] site.url)
-    (handle-api-call t.t.site.url)
-  ?:  ?=([%'~keybase' %svg ^] site.url)
-    (handle-svg-call i.t.t.site.url)
+  ?:  ?=([%'~keybase' %api ^] url)
+    (handle-api-call t.t.url)
+  ?:  ?=([%'~keybase' %svg ^] url)
+    (handle-svg-call i.t.t.url)
   %+  require-authorization:app  inbound-request
   handle-auth-call
   ::
@@ -217,17 +218,30 @@
     =,  enjs:format
     |^
     ?+  pax  not-found:gen
-        [%profile ^]  (profile t.pax)
-        [%check ^]    (check t.pax)
-        [%avatar ^]   (avatar t.pax)
+        [%profile ^]  (handle-profile t.pax)
+        [%check ^]    (handle-check t.pax)
+        [%avatar ^]   (handle-avatar t.pax)
+        [%proof ^]    (handle-proof t.pax)
     ==
     ::
-    ++  profile
+    ++  handle-proof
+      |=  pax=(list @t)
+      :: kb_username=%{kb_username}&
+      :: username=%{username}&
+      :: token=%{sig_hash}&
+      :: kb_ua=%{kb_ua}
+      ^-  simple-payload:http
+      ?>  ?=([user=@t patp=@t token=@t ua=@t ~] pax)
+      =?  proof  =(i.t.pax (scot %p our.bowl))
+        [i.t.pax i.t.t.pax]
+      *simple-payload:http
+    ::
+    ++  handle-profile
       |=  pax=(list @t)
       ^-  simple-payload:http
       (json-response:gen (json-to-octs s+'profile'))
     ::
-    ++  check
+    ++  handle-check
       |=  pax=(list @t)
       ^-  simple-payload:http
       =;  =json
@@ -236,11 +250,11 @@
       :-  %a
       :_  ~
       %-  pairs
-      :~  ['kb_username' s+keybase-username.proof]
+      :~  ['kb_username' s+user.proof]
           ['sig_hash' s+token.proof]
       ==
     ::
-    ++  avatar
+    ++  handle-avatar
       |=  pax=(list @t)
       ^-  simple-payload:http
       (json-response:gen (json-to-octs s+'avatar'))
@@ -258,25 +272,28 @@
   ++  handle-auth-call
     |=  =inbound-request:eyre
     ^-  simple-payload:http
+    =/  url=request-line
+      (parse-request-line url.request.inbound-request)
     ?+  site.url  not-found:gen
-        [%'~keybase' %css %index ~]  (css-response:gen style)
-        [%'~keybase' %js %tile ~]    (js-response:gen tile-js)
-        [%'~keybase' %js %index ~]   (js-response:gen script)
-        [%'~keybase' %img @t *]      (handle-img-call i.t.t.site.url)
-        [%'~keybase' *]              (html-response:gen index)
+      [%'~keybase' %css %index ~]  (css-response:gen style)
+      [%'~keybase' %js %tile ~]    (js-response:gen tile-js)
+      [%'~keybase' %js %index ~]   (js-response:gen script)
+      [%'~keybase' %img @t *]      (handle-img-call i.t.t.site.url)
+      [%'~keybase' *]              (html-response:gen index)
     ==
   ::
   ++  handle-img-call
     |=  name=@t
+    ^-  simple-payload:http
     =/  img  (~(get by keybase-png) name)
     ?~  img
       not-found:gen
     (png-response:gen (as-octs:mimes:html u.img))
   --
 ::
-++  config-json
+++  config-keybase
   |%
-  ++  check-keybase
+  ++  check
     |=  config=keybase-config
     ^-  (list card)
     =,  html
@@ -291,7 +308,7 @@
           %-  crip
           "config={(en-urlt:html encoded-json)}"
       ==
-    =/  =path  /check-keybase/(scot %da now.bowl)
+    =/  =path  /check-config/(scot %da now.bowl)
     [%pass path %arvo %i %request request *outbound-config:iris]~
   ::
   ++  save
@@ -301,6 +318,35 @@
       /(scot %p our.bowl)/home/(scot %da now.bowl)/app/keybase/config/json
     =/  contents=cage  [%json !>(json)]
     [%pass / %arvo %c %info (foal:space:userlib path contents)]
+  --
+::
+++  proof-keybase
+  |%
+  ++  validate
+    |=  proof=keybase-proof
+    ^-  (list card)
+    =,  html
+    :: =/  encoded-json=tape  (en-json (keybase-proof-to-json config))
+    =/  =request:http
+      :*  %'POST'
+          'https://keybase.io/_/api/1.0/sig/proof_valid.json'
+          ['Content-Type' 'application/x-www-form-urlencoded']~
+        ::
+          %-  some
+          %-  as-octs:mimes
+          %-  crip
+          ;:  weld
+              "domain={(trip domain.config)}&"
+              "kb_username={(trip user.proof)}&"
+              "username={(trip (scot %p our.bowl))}&"
+              "sig_hash={(trip token.proof)}"
+          ==
+      ==
+    =/  =path  /check-proof/(scot %da now.bowl)
+    [%pass path %arvo %i %request request *outbound-config:iris]~
+  ::
+  ++  check  [~ state]
+  ::
   --
 ::
 ++  http-response
@@ -318,17 +364,24 @@
   =/  jon=(unit json)  (de-json:html q.data.u.data)
   ?~  jon
      [~ state]
-  =/  res=keybase-response  (json-to-keybase-response u.jon)
+  =/  res=keybase-response
+    (json-to-keybase-response u.jon)
   |^
   ?+   wire  ~&  "nothing..."  [~ state]
-    [%check-keybase *]  (check-config res)
+    [%check-config *]  (check-config res)
+    [%check-proof *]   (check-proof res)
   ==
   ::
   ++  check-config
     |=  res=keybase-response
     ^-  (quip card _state)
+    ?>  ?=(%status -.res)
+    =/  jon=json
+      ?.  =(0 code.res)  *json
+      (keybase-config-to-json config)
     =/  message=json
       %-  pairs:enjs:format
+      :-  ['config' jon]
       ?:  =(0 code.res)
         ~[['out' s+'ok'] ['error' b+%.n]]
       :~  ['error' b+%.y]
@@ -338,6 +391,21 @@
           s+u.desc.res
       ==
     :_  state
-    [%give %fact ~[/primary] %json !>(message)]~
+    :~  (save:config-keybase jon)
+        [%give %fact ~[/primary] %json !>(message)]
+    ==
+  ::
+  ++  check-proof
+    |=  res=keybase-response
+    ^-  (quip card _state)
+    ?>  ?=(%valid -.res)
+    :_  state
+    :_  ~
+    :*  %give  %fact  ~[/primary]  %json
+        !>  %-  pairs:enjs:format
+          ?:  +.res
+            ~[['out' s+'ok'] ['error' b+%.n]]
+          ~[['out' s+'proof is invalid'] ['error' b+%.y]]
+    ==
   --
 --

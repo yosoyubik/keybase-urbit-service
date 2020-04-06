@@ -27,11 +27,6 @@
           (ar (ot badge))
         :~  ['name' so]
             ['data' so]
-         ::
-           :: :-  'data'
-           :: =;  base64-check
-           ::   (cu base64-check so)
-           :: |=(a=@t ?>(?=(^ (de:base64 a)) a))
         ==
       ::
         :-  'config'
@@ -117,8 +112,11 @@
   |^  (parse-json jon)
   ::
   ++  parse-json
+    =;  response-types
+      (cu parse-key response-types)
     %-  of
-    :~  [%status status]
+    :~  ['status' status]
+        ['proof_valid' bo]
     ==
   ::
   ++  status
@@ -127,5 +125,13 @@
         ['name' (un so)]
         ['desc' (uf ~ (mu so))]
     ==
+  ::
+  ++  parse-key
+    |*  [key=@t val=*]
+    ^-  keybase-response
+    ?:  ?=(? val)
+      [%valid val]
+    ?.  ?=(^ val)  !!
+    [%status val]
   --
 --

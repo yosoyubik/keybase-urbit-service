@@ -9,7 +9,10 @@ class UrbitApi {
 
     this.config = {
       save: this.configSave.bind(this),
-      test: this.test.bind(this)
+    };
+
+    this.proof = {
+      add: this.proofAdd.bind(this),
     };
   }
 
@@ -60,8 +63,14 @@ class UrbitApi {
     });
   }
 
-  test() {
-    return this.action("keybase", "keybase-action", {test: "test"});
+  proofAdd(keybaseUsername, token) {
+    console.log(config, badges);
+    return this.action("keybase", "keybase-action", {
+      add: {
+        "kb_username": keybaseUsername,
+        "sug_hash": token
+      }
+    });
   }
 
   // configRemove() {

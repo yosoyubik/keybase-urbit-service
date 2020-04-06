@@ -26,7 +26,7 @@ export class NewScreen extends Component {
     this.contactEmailChange = this.contactEmailChange.bind(this);
   }
 
-  convertToBase64(spec, index) {
+  convertToXML(spec, index) {
     // convert from svg string
     const svgString = sigil({
       patp: ship,
@@ -37,12 +37,7 @@ export class NewScreen extends Component {
     const svgDocument = new DOMParser().parseFromString(svgString, 'image/svg+xml')
     svgDocument.documentElement.width.baseVal.valueAsString = `${spec.size}px`
     svgDocument.documentElement.height.baseVal.valueAsString = `${spec.size}px`
-    const base64EncodedSVG = btoa(
-      new XMLSerializer().serializeToString(svgDocument)
-    );
     const serializedXML = new XMLSerializer().serializeToString(svgDocument);
-    console.log(serializedXML);
-    // this[index] = {name: spec.name, data:base64EncodedSVG};
     this[index] = {name: spec.name, data: serializedXML};
   }
 
@@ -54,7 +49,7 @@ export class NewScreen extends Component {
     this.setState({contact: event.target.value});
   }
 
-  async onClickCreate() {
+  onClickCreate() {
     const { props, state } = this;
     const domain = state.domain.replace(/\/+$/, "");
     console.log(state);
@@ -92,7 +87,8 @@ export class NewScreen extends Component {
       },
       description: "A clean-slate OS and network for the 21st century",
       //  All URLs must be on the given `domain` or a subdomain and accessible via HTTPS.
-      prefill_url: `${domain}/~keybase/api/proof?kb_username=%{kb_username}&username=%{username}&token=%{sig_hash}&kb_ua=%{kb_ua}`,
+      //prefill_url: `${domain}/~keybase/submit-proof?kb_username=%{kb_username}&username=%{username}&token=%{sig_hash}&kb_ua=%{kb_ua}`,
+      prefill_url: `${domain}/~keybase/submit-proof/%{kb_username}/%{username}/%{sig_hash}/%{kb_ua}`,
       // Link to a profile page, for when users click from inside Keybase
       profile_url: `${domain}/~keybase/api/profile/%{username}`,
       // Endpoint for checking a user's proofs
@@ -106,7 +102,7 @@ export class NewScreen extends Component {
       success: true,
       awaiting: true
     }, () => {
-      props.api.config.save(config,badges)
+      props.api.config.save(config, badges)
         .then(() => {
         this.setState({awaiting: false});
         props.history.push(`/~keybase/config`);

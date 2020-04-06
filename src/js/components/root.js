@@ -7,6 +7,7 @@ import { HeaderBar } from "./lib/header-bar.js"
 import { Skeleton } from '/components/skeleton';
 import { NewScreen } from '/components/new';
 import { ConfigScreen } from '/components/config';
+import { SubmitProof } from '/components/submit-proof';
 
 
 export class Root extends Component {
@@ -65,6 +66,28 @@ export class Root extends Component {
                   <ConfigScreen
                     history={props.history}
                     api={api}
+                  />
+                </Skeleton>
+              );
+          }} />
+          <Route exact path="/~keybase/submit-proof/notebook/:kb_username/:patp/:token/:kb_ua?"
+            render={ (props) => {
+              const keybaseUsername =  props.match.params.kb_username;
+              const patp =  props.match.params.patp;
+              const token =  props.match.params.token;
+              const keybaseAgent =  props.match.params.kb_ua;
+              return (
+                <Skeleton
+                  history={props.history}
+                  api={api}
+                  activeDrawer="rightPanel">
+                  <SubmitProof
+                    history={props.history}
+                    api={api}
+                    keybaseUsername={keybaseUsername}
+                    patp={patp}
+                    token={token}
+                    keybaseAgent={keybaseAgent}
                   />
                 </Skeleton>
               );
