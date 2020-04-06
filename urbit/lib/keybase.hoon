@@ -12,6 +12,7 @@
     :~  [%add proof]
         [%save config]
         [%test so]
+        [%remove so]
     ==
   ::
   ++  proof

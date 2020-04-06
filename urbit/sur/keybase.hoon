@@ -73,6 +73,7 @@
   $%  [%add proof=keybase-proof]
       [%save badges=(list [@t @t]) =keybase-config]
       [%test @t]
+      [%remove user=@t]
   ==
 ::
 +$  keybase-update

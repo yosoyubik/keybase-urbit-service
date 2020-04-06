@@ -179,6 +179,7 @@
   ?-  -.act
       %add     (handle-add proof.act)
       %save    (handle-save [keybase-config.act badges.act])
+      %remove  (handle-remove user.act)
       %test    [[%pass / %arvo %d %flog [%text (trip +.act)]]~ state]
   ==
   ::
@@ -216,12 +217,11 @@
   ++  handle-api-call
     |=  pax=path
     ^-  simple-payload:http
-    =,  enjs:format
     |^
     ?+  pax  not-found:gen
-      [%profile ^]   (handle-profile t.pax)
-      [%check @t ~]  (handle-check i.t.pax)
-      [%avatar ^]    (handle-avatar t.pax)
+      :: [%profile ^]   (handle-profile t.pax)
+      [%check @t ~]  (check:proof-keybase i.t.pax)
+      :: [%avatar ^]    (handle-avatar t.pax)
       :: [%proof ^]    (handle-proof t.pax)
     ==
     ::
@@ -237,33 +237,16 @@
     ::     [i.t.pax i.t.t.pax]
     ::   *simple-payload:http
     ::
-    ++  handle-profile
-      |=  pax=(list @t)
-      ^-  simple-payload:http
-      (json-response:gen (json-to-octs s+'profile'))
+    :: ++  handle-profile
+    ::   |=  pax=(list @t)
+    ::   ^-  simple-payload:http
+    ::   (json-response:gen (json-to-octs s+'profile'))
     ::
-    ++  handle-check
-      |=  user=@t
-      ^-  simple-payload:http
-      ?:  =(user (scot %p our.bowl))
-        not-found:gen
-      =/  signatures=(list keybase-proof)  ~(val by proofs)
-      =;  =json
-        (json-response:gen (json-to-octs json))
-      %+  frond  'signatures'
-      :-  %a
-      %+  turn  signatures
-      |=  proof=keybase-proof
-      ^-  json
-      %-  pairs
-      :~  ['kb_username' s+user.proof]
-          ['sig_hash' s+token.proof]
-      ==
     ::
-    ++  handle-avatar
-      |=  pax=(list @t)
-      ^-  simple-payload:http
-      (json-response:gen (json-to-octs s+'avatar'))
+    :: ++  handle-avatar
+    ::   |=  pax=(list @t)
+    ::   ^-  simple-payload:http
+    ::   (json-response:gen (json-to-octs s+'avatar'))
     --
   ::
   ++  handle-svg-call
@@ -351,7 +334,24 @@
     =/  =path  ~[%check-proof user.proof (scot %da now.bowl)]
     [%pass path %arvo %i %request request *outbound-config:iris]~
   ::
-  ++  check  [~ state]
+  ++  check
+    |=  user=@t
+    ^-  simple-payload:http
+    =,  enjs:format
+    ?:  =(user (scot %p our.bowl))
+      not-found:gen
+    =/  signatures=(list keybase-proof)  ~(val by proofs)
+    =;  =json
+      (json-response:gen (json-to-octs json))
+    %+  frond  'signatures'
+    :-  %a
+    %+  turn  signatures
+    |=  proof=keybase-proof
+    ^-  json
+    %-  pairs
+    :~  ['kb_username' s+user.proof]
+        ['sig_hash' s+token.proof]
+    ==
   ::
   --
 ::
