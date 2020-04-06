@@ -2,7 +2,7 @@
 ::
 ::    data:            scry command:
 ::    ------------    ----------------------------------------------
-::    proof           .^(keybase-proof %gx /=keybase=/proof/noun)
+::    proof           .^(keybase-proof %gx /=keybase=/proof/kb-user/noun)
 ::    config          .^(keybase-config %gx /=keybase=/config/noun)
 ::
 /-  *keybase
@@ -52,7 +52,7 @@
       ==
     ::
     +$  state-zero
-      $:  proof=keybase-proof
+      $:  proofs=(map @t keybase-proof)
           config=keybase-config
       ==
     --
@@ -72,7 +72,7 @@
     ++  on-init
       ^-  (quip card _this)
       ~&  "innit"
-      :_  this(proof *keybase-proof, config *keybase-config)
+      :_  this(proofs ~, config *keybase-config)
       :~  ::  Connects to %launch app
           ::
           launch-poke
@@ -138,8 +138,8 @@
       |=  =path
       ^-  (unit (unit cage))
       ?+  path  (on-peek:def path)
-          [%x %proof ~]  ``noun+!>(proof)
-          [%x %config ~]  ``noun+!>(config)
+          [%x %config ~]    ``noun+!>(config)
+          [%x %proof @t ~]  ``noun+!>((~(get by proofs) i.t.t.path))
       ==
     ::
     ++  on-fail   on-fail:def
@@ -185,12 +185,13 @@
   ++  handle-add
     |=  p=keybase-proof
     ^-  (quip card _state)
-    :_  state(proof p)
+    :_  state(proofs (~(put by proofs) [user.p p]))
     (validate:proof-keybase p)
   ::
   ++  handle-remove
+    |=  user=@t
     ^-  (quip card _state)
-    [~ state(proof *keybase-proof)]
+    [~ state(proofs (~(del by proofs) user))]
   ::
   ++  handle-save
     |=  [config=keybase-config badges=(list [@t @t])]
@@ -219,40 +220,40 @@
     |^
     ?+  pax  not-found:gen
         [%profile ^]  (handle-profile t.pax)
-        [%check ^]    (handle-check t.pax)
+        :: [%check ^]    (handle-check t.pax)
         [%avatar ^]   (handle-avatar t.pax)
-        [%proof ^]    (handle-proof t.pax)
+        :: [%proof ^]    (handle-proof t.pax)
     ==
     ::
-    ++  handle-proof
-      |=  pax=(list @t)
-      :: kb_username=%{kb_username}&
-      :: username=%{username}&
-      :: token=%{sig_hash}&
-      :: kb_ua=%{kb_ua}
-      ^-  simple-payload:http
-      ?>  ?=([user=@t patp=@t token=@t ua=@t ~] pax)
-      =?  proof  =(i.t.pax (scot %p our.bowl))
-        [i.t.pax i.t.t.pax]
-      *simple-payload:http
+    :: ++  handle-proof
+    ::   |=  pax=(list @t)
+    ::   :: kb_username=%{kb_username}&
+    ::   :: username=%{username}&
+    ::   :: token=%{sig_hash}&
+    ::   :: kb_ua=%{kb_ua}
+    ::   ^-  simple-payload:http
+    ::   ?>  ?=([user=@t patp=@t token=@t ua=@t ~] pax)
+    ::   =?  proof  =(i.t.pax (scot %p our.bowl))
+    ::     [i.t.pax i.t.t.pax]
+    ::   *simple-payload:http
     ::
     ++  handle-profile
       |=  pax=(list @t)
       ^-  simple-payload:http
       (json-response:gen (json-to-octs s+'profile'))
     ::
-    ++  handle-check
-      |=  pax=(list @t)
-      ^-  simple-payload:http
-      =;  =json
-        (json-response:gen (json-to-octs json))
-      %+  frond  'signatures'
-      :-  %a
-      :_  ~
-      %-  pairs
-      :~  ['kb_username' s+user.proof]
-          ['sig_hash' s+token.proof]
-      ==
+    :: ++  handle-check
+    ::   |=  pax=(list @t)
+    ::   ^-  simple-payload:http
+    ::   =;  =json
+    ::     (json-response:gen (json-to-octs json))
+    ::   %+  frond  'signatures'
+    ::   :-  %a
+    ::   :_  ~
+    ::   %-  pairs
+    ::   :~  ['kb_username' s+user.proof]
+    ::       ['sig_hash' s+token.proof]
+    ::   ==
     ::
     ++  handle-avatar
       |=  pax=(list @t)
@@ -342,7 +343,7 @@
               "sig_hash={(trip token.proof)}"
           ==
       ==
-    =/  =path  /check-proof/(scot %da now.bowl)
+    =/  =path  ~[%check-proof user.proof (scot %da now.bowl)]
     [%pass path %arvo %i %request request *outbound-config:iris]~
   ::
   ++  check  [~ state]
@@ -369,7 +370,7 @@
   |^
   ?+   wire  ~&  "nothing..."  [~ state]
     [%check-config *]  (check-config res)
-    [%check-proof *]   (check-proof res)
+    [%check-proof ^]   (check-proof res i.t.wire)
   ==
   ::
   ++  check-config
@@ -396,10 +397,11 @@
     ==
   ::
   ++  check-proof
-    |=  res=keybase-response
+    |=  [res=keybase-response user=@t]
     ^-  (quip card _state)
     ?>  ?=(%valid -.res)
-    =?  proof  =(+.res %.n)  ['' '']
+    =?  proofs  =(+.res %.n)
+      (~(del by proofs) user)
     :_  state
     :_  ~
     :*  %give  %fact  ~[/primary]  %json
@@ -409,6 +411,7 @@
           ^-  (list [@t json])
           ?.  +.res
             ~[['out' s+'proof is invalid'] ['error' b+%.y]]
+          =/  proof=keybase-proof  (~(got by proofs) user)
           =/  url=@t
             %-  crip
             ;:  weld
