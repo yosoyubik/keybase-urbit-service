@@ -399,13 +399,27 @@
     |=  res=keybase-response
     ^-  (quip card _state)
     ?>  ?=(%valid -.res)
+    =?  proof  =(+.res %.n)  ['' '']
     :_  state
     :_  ~
     :*  %give  %fact  ~[/primary]  %json
-        !>  %-  pairs:enjs:format
-          ?:  +.res
-            ~[['out' s+'ok'] ['error' b+%.n]]
-          ~[['out' s+'proof is invalid'] ['error' b+%.y]]
+        =;  answer=json
+          !>(answer)
+        %-  pairs:enjs:format
+          ^-  (list [@t json])
+          ?.  +.res
+            ~[['out' s+'proof is invalid'] ['error' b+%.y]]
+          =/  url=@t
+            %-  crip
+            ;:  weld
+                "https://keybase.io/_/proof_creation_success?"
+                "domain={(trip domain.config)}&"
+                "kb_username={(trip user.proof)}&"
+                "username={(trip (scot %p our.bowl))}&"
+                "sig_hash={(trip token.proof)}&"
+                "kb_ua=darwin:3.0.0"
+            ==
+          ~[['out' s+'ok'] ['error' b+%.n] ['redirect' s+url]]
     ==
   --
 --
