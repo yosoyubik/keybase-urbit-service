@@ -219,10 +219,10 @@
     =,  enjs:format
     |^
     ?+  pax  not-found:gen
-        [%profile ^]  (handle-profile t.pax)
-        :: [%check ^]    (handle-check t.pax)
-        [%avatar ^]   (handle-avatar t.pax)
-        :: [%proof ^]    (handle-proof t.pax)
+      [%profile ^]   (handle-profile t.pax)
+      [%check @t ~]  (handle-check i.t.pax)
+      [%avatar ^]    (handle-avatar t.pax)
+      :: [%proof ^]    (handle-proof t.pax)
     ==
     ::
     :: ++  handle-proof
@@ -242,18 +242,21 @@
       ^-  simple-payload:http
       (json-response:gen (json-to-octs s+'profile'))
     ::
-    :: ++  handle-check
-    ::   |=  pax=(list @t)
-    ::   ^-  simple-payload:http
-    ::   =;  =json
-    ::     (json-response:gen (json-to-octs json))
-    ::   %+  frond  'signatures'
-    ::   :-  %a
-    ::   :_  ~
-    ::   %-  pairs
-    ::   :~  ['kb_username' s+user.proof]
-    ::       ['sig_hash' s+token.proof]
-    ::   ==
+    ++  handle-check
+      |=  user=@t
+      ^-  simple-payload:http
+      =/  signatures=(list keybase-proof)  ~(val by proofs)
+      =;  =json
+        (json-response:gen (json-to-octs json))
+      %+  frond  'signatures'
+      :-  %a
+      %+  turn  signatures
+      |=  proof=keybase-proof
+      ^-  json
+      %-  pairs
+      :~  ['kb_username' s+user.proof]
+          ['sig_hash' s+token.proof]
+      ==
     ::
     ++  handle-avatar
       |=  pax=(list @t)
