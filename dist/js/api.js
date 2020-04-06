@@ -54,7 +54,7 @@ class UrbitApi {
   }
 
   configSave(config, badges) {
-    console.log(config, badges);
+    // console.log(config, badges);
     return this.action("keybase", "keybase-action", {
       save: {
         config: config,

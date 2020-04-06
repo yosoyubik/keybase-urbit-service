@@ -47,9 +47,11 @@ export class KeybaseSidebar extends Component {
           </Link>
           <Welcome proof={props.proof}/>
           <h2 className="f9 pt4 pr4 pb2 pl4 gray2 c-default">Your Config</h2>
-          {props.config}
+          <Link to="/~keybase/config" className="dib">
+            <p className="f9 ph4 pb2 fw6 gray3">config.json</p>
+          </Link>
           <h2 className="f9 pt4 pr4 pb2 pl4 gray2 c-default">Your Proof</h2>
-          {props.proof}
+
         </div>
       </div>
     );

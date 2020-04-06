@@ -17,11 +17,13 @@ export class Skeleton extends Component {
           , React.createElement(KeybaseSidebar, {
             activeDrawer: props.activeDrawer,
             history: props.history,
-            api: api, __self: this, __source: {fileName: _jsxFileName, lineNumber: 17}}
+            api: api,
+            config: props.config,
+            proofs: props.proofs, __self: this, __source: {fileName: _jsxFileName, lineNumber: 17}}
           )
           , React.createElement('div', {
             className: "h-100 w-100 relative " + rightPanelClasses,
-            style: { flexGrow: 1 }, __self: this, __source: {fileName: _jsxFileName, lineNumber: 22}}
+            style: { flexGrow: 1 }, __self: this, __source: {fileName: _jsxFileName, lineNumber: 24}}
             , props.children
           )
         )

@@ -3,9 +3,10 @@ import _ from 'lodash';
 
 export class InitialReducer {
     reduce(json, state) {
-        let data = _.get(json, 'initial', false);
+        let data = _.get(json, 'keybase-initial', false);
         if (data) {
-            state.inbox = data.inbox;
+            state.config = data.config;
+            state.proofs = data.proofs;
         }
     }
 }

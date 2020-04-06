@@ -65,6 +65,36 @@
     ==  ==
   --
 ::
+++  json-to-keybase-response
+  |=  jon=json
+  ^-  keybase-response
+  =,  dejs:format
+  |^  (parse-json jon)
+  ::
+  ++  parse-json
+    =;  response-types
+      (cu parse-key response-types)
+    %-  of
+    :~  ['status' status]
+        ['proof_valid' bo]
+    ==
+  ::
+  ++  status
+    %-  ou
+    :~  ['code' (un ni)]
+        ['name' (un so)]
+        ['desc' (uf ~ (mu so))]
+    ==
+  ::
+  ++  parse-key
+    |*  [key=@t val=*]
+    ^-  keybase-response
+    ?:  ?=(? val)
+      [%valid val]
+    ?.  ?=(^ val)  !!
+    [%status val]
+  --
+::
 ++  keybase-config-to-json
   |=  config=keybase-config
   ^-  json
@@ -106,33 +136,19 @@
       ['contact' a+(turn contact.config |=(a=@t s+a))]
   ==
 ::
-++  json-to-keybase-response
-  |=  jon=json
-  ^-  keybase-response
-  =,  dejs:format
-  |^  (parse-json jon)
-  ::
-  ++  parse-json
-    =;  response-types
-      (cu parse-key response-types)
-    %-  of
-    :~  ['status' status]
-        ['proof_valid' bo]
-    ==
-  ::
-  ++  status
-    %-  ou
-    :~  ['code' (un ni)]
-        ['name' (un so)]
-        ['desc' (uf ~ (mu so))]
-    ==
-  ::
-  ++  parse-key
-    |*  [key=@t val=*]
-    ^-  keybase-response
-    ?:  ?=(? val)
-      [%valid val]
-    ?.  ?=(^ val)  !!
-    [%status val]
-  --
+++  keybase-proof-to-json
+  |=  proofs=(map @t keybase-proof)
+  ^-  json
+  =,  enjs:format
+  %-  pairs
+  :_  ~
+  :-  'signatures'
+  :-  %a
+  %+  turn  ~(val by proofs)
+  |=  proof=keybase-proof
+  ^-  json
+  %-  pairs
+  :~  ['kb_username' s+user.proof]
+      ['sig_hash' s+token.proof]
+  ==
 --

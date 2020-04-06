@@ -114,7 +114,8 @@
       ?.  =(/primary path)
         ~&  [src.bowl path]
         (on-watch:def path)
-      [[%give %fact ~ %json !>(s+'ok')]~ this]
+      :_  this
+      [%give %fact ~ %json !>(innit-load)]~
     ::
     ++  on-agent  on-agent:def
     ::
@@ -162,8 +163,18 @@
   ^-  card
   =/  =path
     [(scot %p our.bowl) %home (scot %da now.bowl) %app %keybase %svg file %svg ~]
+  ~&  path
   =/  contents=cage  [%svg !>(data)]
   [%pass / %arvo %c %info (foal:space:userlib path contents)]
+::
+++  innit-load
+  ^-  json
+  =,  enjs:format
+  %+  frond  'keybase-initial'
+  %-  pairs
+  :~  ['config' (keybase-config-to-json config)]
+      ['proofs' (keybase-proof-to-json proofs)]
+  ==
 ::
 ++  handle-json
   |=  jon=json
@@ -186,8 +197,9 @@
   ++  handle-add
     |=  p=keybase-proof
     ^-  (quip card _state)
-    :_  state(proofs (~(put by proofs) [user.p p]))
-    (validate:proof-keybase p)
+    :-  (validate:proof-keybase p)
+    state(proofs (~(put by proofs) [user.p p]))
+
   ::
   ++  handle-remove
     |=  user=@t

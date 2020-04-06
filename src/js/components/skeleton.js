@@ -18,6 +18,8 @@ export class Skeleton extends Component {
             activeDrawer={props.activeDrawer}
             history={props.history}
             api={api}
+            config={props.config}
+            proofs={props.proofs}
           />
           <div
             className={"h-100 w-100 relative " + rightPanelClasses}

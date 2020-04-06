@@ -10,10 +10,6 @@ export class NewScreen extends Component {
     super(props);
 
     this.state = {
-      version: 1,
-      domain: "",
-      // A contact for Keybase in case of issues.
-      contact: "",
       badges: [
         {name: 'small-black-logo', size: 16, colors:['black', 'white']},
         {name: 'small-white-logo', size: 16, colors:['white', 'black']},
@@ -55,7 +51,7 @@ export class NewScreen extends Component {
     console.log(state);
 
     const badges = state.badges.slice();
-    badges.forEach(this.convertToBase64, badges);
+    badges.forEach(this.convertToXML, badges);
 
     const config = {
       domain: domain,
@@ -111,40 +107,40 @@ export class NewScreen extends Component {
   }
 
   render() {
-    let displayNameErrElem = (React.createElement('span', {__self: this, __source: {fileName: _jsxFileName, lineNumber: 114}} ));
+    let displayNameErrElem = (React.createElement('span', {__self: this, __source: {fileName: _jsxFileName, lineNumber: 110}} ));
     if (this.state.displayNameError) {
       displayNameErrElem = (
-        React.createElement('span', { className: "f9 inter red2 ml3 mt1 db"     , __self: this, __source: {fileName: _jsxFileName, lineNumber: 117}}, "Keybase Identity Service must have a name."
+        React.createElement('span', { className: "f9 inter red2 ml3 mt1 db"     , __self: this, __source: {fileName: _jsxFileName, lineNumber: 113}}, "Keybase Identity Service must have a name."
 
         )
         );
     }
 
-    let domainErrElem = (React.createElement('span', {__self: this, __source: {fileName: _jsxFileName, lineNumber: 123}} ));
+    let domainErrElem = (React.createElement('span', {__self: this, __source: {fileName: _jsxFileName, lineNumber: 119}} ));
     if (this.state.domainError) {
       domainErrElem = (
-        React.createElement('span', { className: "f9 inter red2 ml3 mt1 db"     , __self: this, __source: {fileName: _jsxFileName, lineNumber: 126}}, "Keybase Identity Service must have a contact email."
+        React.createElement('span', { className: "f9 inter red2 ml3 mt1 db"     , __self: this, __source: {fileName: _jsxFileName, lineNumber: 122}}, "Keybase Identity Service must have a contact email."
 
         )
         );
     }
 
     return (
-      React.createElement('div', { className: "h-100 w-100 mw6 pa3 pt4 overflow-x-hidden bg-gray0-d white-d flex flex-column"         , __self: this, __source: {fileName: _jsxFileName, lineNumber: 133}}
-        , React.createElement('div', { className: "w-100 dn-m dn-l dn-xl inter pt1 pb6 f8"       , __self: this, __source: {fileName: _jsxFileName, lineNumber: 134}}
-          , React.createElement(Link, { to: "/~keybase/", __self: this, __source: {fileName: _jsxFileName, lineNumber: 135}}, "⟵ All Groups")
+      React.createElement('div', { className: "h-100 w-100 mw6 pa3 pt4 overflow-x-hidden bg-gray0-d white-d flex flex-column"         , __self: this, __source: {fileName: _jsxFileName, lineNumber: 129}}
+        , React.createElement('div', { className: "w-100 dn-m dn-l dn-xl inter pt1 pb6 f8"       , __self: this, __source: {fileName: _jsxFileName, lineNumber: 130}}
+          , React.createElement(Link, { to: "/~keybase/", __self: this, __source: {fileName: _jsxFileName, lineNumber: 131}}, "⟵ All Groups")
         )
-        , React.createElement('div', { className: "w-100 mb4 pr6 pr0-l pr0-xl"    , __self: this, __source: {fileName: _jsxFileName, lineNumber: 137}}
+        , React.createElement('div', { className: "w-100 mb4 pr6 pr0-l pr0-xl"    , __self: this, __source: {fileName: _jsxFileName, lineNumber: 133}}
 
           , React.createElement('div', { className: "fl ma2 bg-white bg-gray0-d white-d overflow-hidden " +
-          "ba b--black b--gray1-d pa2 w-100 lh-copy", __self: this, __source: {fileName: _jsxFileName, lineNumber: 139}}
-            , React.createElement('p', { className: "f9", __self: this, __source: {fileName: _jsxFileName, lineNumber: 141}}, "To send us the config, you can send us the public URL for your config file or attach it directly in a Keybase chat message to @mlsteele or email miles@keyba.se."                             )
-            , React.createElement('p', { className: "f9 pt2" , __self: this, __source: {fileName: _jsxFileName, lineNumber: 142}}, "In our example the file is hosted at https://keybase.io/.well-known/example-proof-config.json."        )
+          "ba b--black b--gray1-d pa2 w-100 lh-copy", __self: this, __source: {fileName: _jsxFileName, lineNumber: 135}}
+            , React.createElement('p', { className: "f9", __self: this, __source: {fileName: _jsxFileName, lineNumber: 137}}, "To send us the config, you can send us the public URL for your config file or attach it directly in a Keybase chat message to @mlsteele or email miles@keyba.se."                             )
+            , React.createElement('p', { className: "f9 pt2" , __self: this, __source: {fileName: _jsxFileName, lineNumber: 138}}, "In our example the file is hosted at https://keybase.io/.well-known/example-proof-config.json."        )
           )
 
-          , React.createElement('h2', { className: "f8 pt6" , __self: this, __source: {fileName: _jsxFileName, lineNumber: 145}}, "Create Keybase Config"  )
+          , React.createElement('h2', { className: "f8 pt6" , __self: this, __source: {fileName: _jsxFileName, lineNumber: 141}}, "Create Keybase Config"  )
 
-          , React.createElement('h2', { className: "f8", __self: this, __source: {fileName: _jsxFileName, lineNumber: 147}}, "Domain")
+          , React.createElement('h2', { className: "f8", __self: this, __source: {fileName: _jsxFileName, lineNumber: 143}}, "Domain")
           , React.createElement('textarea', {
             className: 
               "f7 ba b--gray3 b--gray2-d bg-gray0-d white-d pa3 db w-100 mt2 " +
@@ -157,11 +153,11 @@ export class NewScreen extends Component {
               height: 48,
               paddingTop: 14
             },
-            onChange: this.domainChange, __self: this, __source: {fileName: _jsxFileName, lineNumber: 148}}
+            onChange: this.domainChange, __self: this, __source: {fileName: _jsxFileName, lineNumber: 144}}
           )
           , domainErrElem
 
-          , React.createElement('h2', { className: "f8 pt6" , __self: this, __source: {fileName: _jsxFileName, lineNumber: 164}}, "Contact Email" )
+          , React.createElement('h2', { className: "f8 pt6" , __self: this, __source: {fileName: _jsxFileName, lineNumber: 160}}, "Contact Email" )
           , React.createElement('textarea', {
             className: 
               "f7 ba b--gray3 b--gray2-d bg-gray0-d white-d pa3 db w-100 mt2 " +
@@ -174,17 +170,17 @@ export class NewScreen extends Component {
               height: 48,
               paddingTop: 14
             },
-            onChange: this.contactEmailChange, __self: this, __source: {fileName: _jsxFileName, lineNumber: 165}}
+            onChange: this.contactEmailChange, __self: this, __source: {fileName: _jsxFileName, lineNumber: 161}}
           )
           , domainErrElem
 
           , React.createElement('button', {
             onClick: this.onClickCreate.bind(this),
-            className: "f9 ba pa2 b--green2 green2 pointer bg-transparent"      , __self: this, __source: {fileName: _jsxFileName, lineNumber: 181}}, "Save Keybase Config"
+            className: "f9 ba pa2 b--green2 green2 pointer bg-transparent"      , __self: this, __source: {fileName: _jsxFileName, lineNumber: 177}}, "Save Keybase Config"
 
           )
-          , React.createElement(Link, { to: "/~keybase", __self: this, __source: {fileName: _jsxFileName, lineNumber: 186}}
-            , React.createElement('button', { className: "f9 ml3 ba pa2 b--black pointer bg-transparent b--white-d white-d"        , __self: this, __source: {fileName: _jsxFileName, lineNumber: 187}}, "Cancel")
+          , React.createElement(Link, { to: "/~keybase", __self: this, __source: {fileName: _jsxFileName, lineNumber: 182}}
+            , React.createElement('button', { className: "f9 ml3 ba pa2 b--black pointer bg-transparent b--white-d white-d"        , __self: this, __source: {fileName: _jsxFileName, lineNumber: 183}}, "Cancel")
           )
         )
       )

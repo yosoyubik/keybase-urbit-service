@@ -47,9 +47,11 @@ export class KeybaseSidebar extends Component {
           )
           , React.createElement(Welcome, { proof: props.proof, __self: this, __source: {fileName: _jsxFileName, lineNumber: 48}})
           , React.createElement('h2', { className: "f9 pt4 pr4 pb2 pl4 gray2 c-default"      , __self: this, __source: {fileName: _jsxFileName, lineNumber: 49}}, "Your Config" )
-          , props.config
-          , React.createElement('h2', { className: "f9 pt4 pr4 pb2 pl4 gray2 c-default"      , __self: this, __source: {fileName: _jsxFileName, lineNumber: 51}}, "Your Proof" )
-          , props.proof
+          , React.createElement(Link, { to: "/~keybase/config", className: "dib", __self: this, __source: {fileName: _jsxFileName, lineNumber: 50}}
+            , React.createElement('p', { className: "f9 ph4 pb2 fw6 gray3"    , __self: this, __source: {fileName: _jsxFileName, lineNumber: 51}}, "config.json")
+          )
+          , React.createElement('h2', { className: "f9 pt4 pr4 pb2 pl4 gray2 c-default"      , __self: this, __source: {fileName: _jsxFileName, lineNumber: 53}}, "Your Proof" )
+
         )
       )
     );

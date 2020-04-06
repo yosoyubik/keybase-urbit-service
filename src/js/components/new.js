@@ -10,10 +10,6 @@ export class NewScreen extends Component {
     super(props);
 
     this.state = {
-      version: 1,
-      domain: "",
-      // A contact for Keybase in case of issues.
-      contact: "",
       badges: [
         {name: 'small-black-logo', size: 16, colors:['black', 'white']},
         {name: 'small-white-logo', size: 16, colors:['white', 'black']},
@@ -55,7 +51,7 @@ export class NewScreen extends Component {
     console.log(state);
 
     const badges = state.badges.slice();
-    badges.forEach(this.convertToBase64, badges);
+    badges.forEach(this.convertToXML, badges);
 
     const config = {
       domain: domain,

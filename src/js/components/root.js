@@ -13,6 +13,9 @@ import { SubmitProof } from '/components/submit-proof';
 export class Root extends Component {
   constructor(props) {
     super(props);
+
+    this.state = store.state;
+    store.setStateHandler(this.setState.bind(this));
   }
 
   // componentDidMount() {
@@ -21,7 +24,8 @@ export class Root extends Component {
 
   render() {
     const { props, state } = this;
-
+    let config = !!state.config ? state.config : {};
+    let proofs = !!state.proofs ? state.proofs : {};
     return (
       <BrowserRouter>
         <div className="h-100 w-100">
@@ -48,6 +52,8 @@ export class Root extends Component {
                 <Skeleton
                   history={props.history}
                   api={api}
+                  config={config}
+                  proofs={proofs}
                   activeDrawer="rightPanel">
                   <NewScreen
                     history={props.history}
@@ -62,10 +68,13 @@ export class Root extends Component {
                 <Skeleton
                   history={props.history}
                   api={api}
+                  config={config}
+                  proofs={proofs}
                   activeDrawer="rightPanel">
                   <ConfigScreen
                     history={props.history}
                     api={api}
+                    config={config}
                   />
                 </Skeleton>
               );
@@ -80,6 +89,8 @@ export class Root extends Component {
                 <Skeleton
                   history={props.history}
                   api={api}
+                  config={config}
+                  proofs={proofs}
                   activeDrawer="rightPanel">
                   <SubmitProof
                     history={props.history}

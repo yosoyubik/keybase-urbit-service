@@ -6,7 +6,8 @@ import { UpdateReducer } from '/reducers/update';
 class Store {
     constructor() {
         this.state = {
-            inbox: {}
+            config: {},
+            proofs: {}
         };
 
         this.initialReducer = new InitialReducer();
@@ -25,8 +26,6 @@ class Store {
         console.log(json);
         this.initialReducer.reduce(json, this.state);
         this.configReducer.reduce(json, this.state);
-        this.updateReducer.reduce(json, this.state);
-
         this.setState(this.state);
     }
 }
