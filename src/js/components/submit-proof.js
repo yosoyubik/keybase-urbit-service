@@ -23,7 +23,7 @@ export class SubmitProof extends Component {
       success: true,
       awaiting: true
     }, () => {
-      props.api.proof.add(state.keybaseUsername, state.token)
+      props.api.proof.add(props.keybaseUsername, props.token)
         .then(() => {
         this.setState({awaiting: false});
         // props.history.push(`/~keybase/proof`);
@@ -52,7 +52,8 @@ export class SubmitProof extends Component {
           "ba b--black b--gray1-d pa2 w-100 lh-copy"}>
             <p className="f9">This proof should be stored forever unless it is updated or deleted by the user.</p>
             <p className="f9 pt2">The Identity Service validates the signature with Keybase and saves this data so it can be served during the Proof Checking flow.</p>
-            <p className="f9 pt2">You need to review that your Keybase username is correct. Then by clicking "Save Keybase Proof" you will authorizes the cryptographic connection.</p>
+            <p className="f9 pt2">You need to review that your Keybase username is correct.</p>
+            <p className="f9 pt2">Then by clicking "Store Proof" you will authorizes the cryptographic connection and store the proof on your ship.</p>
 
             <h2 className="f8 pt6">Proof Validation</h2>
 
@@ -62,6 +63,8 @@ export class SubmitProof extends Component {
                 "f7 ba b--gray3 b--gray2-d bg-gray0-d white-d pa3 db w-100 mt2 " +
                 "focus-b--black focus-b--white-d"
               }
+              readOnly
+              defaultValue={this.props.keybaseUsername}
               rows={1}
               style={{
                 resize: "none",
@@ -69,7 +72,6 @@ export class SubmitProof extends Component {
                 paddingTop: 14
               }}
             >
-            this.props.keybaseUsername;
             </textarea>
             {displayNameErrElem}
 
@@ -79,6 +81,8 @@ export class SubmitProof extends Component {
                 "f7 ba b--gray3 b--gray2-d bg-gray0-d white-d pa3 db w-100 mt2 " +
                 "focus-b--black focus-b--white-d"
               }
+              readOnly
+              defaultValue={this.props.token}
               rows={1}
               style={{
                 resize: "none",
@@ -86,13 +90,12 @@ export class SubmitProof extends Component {
                 paddingTop: 14
               }}
               >
-              this.props.token;
               </textarea>
 
             <button
               onClick={this.onClickSave.bind(this)}
               className="f9 ba pa2 b--green2 green2 pointer bg-transparent">
-              Save Keybase Proof
+              Store Proof
             </button>
           </div>
         </div>

@@ -20,10 +20,11 @@ export class Skeleton extends Component {
             api={api}
             config={props.config}
             proofs={props.proofs}
+            selected={this.props.selected}
           />
-          <div
-            className={"h-100 w-100 relative " + rightPanelClasses}
-            style={{ flexGrow: 1 }}>
+            <div className="h-100 w-100 flex-auto relative" style={{
+              flexGrow: 1,
+            }}>
             {props.children}
           </div>
         </div>

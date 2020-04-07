@@ -170,10 +170,16 @@
 ++  innit-load
   ^-  json
   =,  enjs:format
+  :: =/  test-proofs=(map @t keybase-proof)
+  ::   %-  molt
+  ::   :~  ['yosoyubik' ['yosoyubik' ')*^#%&*#($)']]
+  ::       ['wintermute' ['wintermute' '!@#$%^']]
+  ::       ['pontifex' ['pontifex' '{":?|}|}"}']]
+  ::   ==
   %+  frond  'keybase-initial'
   %-  pairs
   :~  ['config' (keybase-config-to-json config)]
-      ['proofs' (keybase-proof-to-json proofs)]
+      ['proofs' (keybase-proofs-to-json proofs)]
   ==
 ::
 ++  handle-json
@@ -197,9 +203,12 @@
   ++  handle-add
     |=  p=keybase-proof
     ^-  (quip card _state)
-    :-  (validate:proof-keybase p)
+    :: :-  (validate:proof-keybase p)
+    =/  proof-update=json
+      %-  pairs:enjs:format
+      ['proof' (keybase-proof-to-json p)]~
+    :-  [%give %fact ~[/primary] %json !>(proof-update)]~
     state(proofs (~(put by proofs) [user.p p]))
-
   ::
   ++  handle-remove
     |=  user=@t
@@ -327,7 +336,6 @@
     |=  proof=keybase-proof
     ^-  (list card)
     =,  html
-    :: =/  encoded-json=tape  (en-json (keybase-proof-to-json config))
     =/  =request:http
       :*  %'POST'
           'https://keybase.io/_/api/1.0/sig/proof_valid.json'

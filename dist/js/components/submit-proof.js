@@ -23,7 +23,7 @@ export class SubmitProof extends Component {
       success: true,
       awaiting: true
     }, () => {
-      props.api.proof.add(state.keybaseUsername, state.token)
+      props.api.proof.add(props.keybaseUsername, props.token)
         .then(() => {
         this.setState({awaiting: false});
         // props.history.push(`/~keybase/proof`);
@@ -52,46 +52,49 @@ export class SubmitProof extends Component {
           "ba b--black b--gray1-d pa2 w-100 lh-copy", __self: this, __source: {fileName: _jsxFileName, lineNumber: 51}}
             , React.createElement('p', { className: "f9", __self: this, __source: {fileName: _jsxFileName, lineNumber: 53}}, "This proof should be stored forever unless it is updated or deleted by the user."              )
             , React.createElement('p', { className: "f9 pt2" , __self: this, __source: {fileName: _jsxFileName, lineNumber: 54}}, "The Identity Service validates the signature with Keybase and saves this data so it can be served during the Proof Checking flow."                     )
-            , React.createElement('p', { className: "f9 pt2" , __self: this, __source: {fileName: _jsxFileName, lineNumber: 55}}, "You need to review that your Keybase username is correct. Then by clicking \"Save Keybase Proof\" you will authorizes the cryptographic connection."                     )
+            , React.createElement('p', { className: "f9 pt2" , __self: this, __source: {fileName: _jsxFileName, lineNumber: 55}}, "You need to review that your Keybase username is correct."         )
+            , React.createElement('p', { className: "f9 pt2" , __self: this, __source: {fileName: _jsxFileName, lineNumber: 56}}, "Then by clicking \"Store Proof\" you will authorizes the cryptographic connection and store the proof on your ship."                 )
 
-            , React.createElement('h2', { className: "f8 pt6" , __self: this, __source: {fileName: _jsxFileName, lineNumber: 57}}, "Proof Validation" )
+            , React.createElement('h2', { className: "f8 pt6" , __self: this, __source: {fileName: _jsxFileName, lineNumber: 58}}, "Proof Validation" )
 
-            , React.createElement('h2', { className: "f8", __self: this, __source: {fileName: _jsxFileName, lineNumber: 59}}, "Keybase Username" )
+            , React.createElement('h2', { className: "f8", __self: this, __source: {fileName: _jsxFileName, lineNumber: 60}}, "Keybase Username" )
             , React.createElement('textarea', {
               className: 
                 "f7 ba b--gray3 b--gray2-d bg-gray0-d white-d pa3 db w-100 mt2 " +
                 "focus-b--black focus-b--white-d"
               ,
+              readOnly: true,
+              defaultValue: this.props.keybaseUsername,
               rows: 1,
               style: {
                 resize: "none",
                 height: 48,
                 paddingTop: 14
-              }, __self: this, __source: {fileName: _jsxFileName, lineNumber: 60}}
-            , "this.props.keybaseUsername;"
-
+              }, __self: this, __source: {fileName: _jsxFileName, lineNumber: 61}}
+            
             )
             , displayNameErrElem
 
-            , React.createElement('h2', { className: "f8 pt6" , __self: this, __source: {fileName: _jsxFileName, lineNumber: 76}}, "Token")
+            , React.createElement('h2', { className: "f8 pt6" , __self: this, __source: {fileName: _jsxFileName, lineNumber: 78}}, "Token")
             , React.createElement('textarea', {
               className: 
                 "f7 ba b--gray3 b--gray2-d bg-gray0-d white-d pa3 db w-100 mt2 " +
                 "focus-b--black focus-b--white-d"
               ,
+              readOnly: true,
+              defaultValue: this.props.token,
               rows: 1,
               style: {
                 resize: "none",
                 height: 48,
                 paddingTop: 14
-              }, __self: this, __source: {fileName: _jsxFileName, lineNumber: 77}}
-              , "this.props.token;"
-
+              }, __self: this, __source: {fileName: _jsxFileName, lineNumber: 79}}
+              
               )
 
             , React.createElement('button', {
               onClick: this.onClickSave.bind(this),
-              className: "f9 ba pa2 b--green2 green2 pointer bg-transparent"      , __self: this, __source: {fileName: _jsxFileName, lineNumber: 92}}, "Save Keybase Proof"
+              className: "f9 ba pa2 b--green2 green2 pointer bg-transparent"      , __self: this, __source: {fileName: _jsxFileName, lineNumber: 95}}, "Store Proof"
 
             )
           )

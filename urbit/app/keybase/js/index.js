@@ -44473,31 +44473,25 @@
                 }
             }
 
-            class UpdateReducer {
-                reduce(json, state) {
-                    let data = lodash.get(json, 'update', false);
-                    if (data) {
-                        this.reduceInbox(lodash.get(data, 'inbox', false), state);
-                    }
-                }
-
-                reduceInbox(inbox, state) {
-                    if (inbox) {
-                        state.inbox = inbox;
-                    }
-                }
+            class ProofReducer {
+              reduce(json, state) {
+                  let data = lodash.get(json, 'proof', false);
+                  if (data) {
+                      state.proofs.signatures.push(data);
+                  }
+              }
             }
 
             class Store {
                 constructor() {
                     this.state = {
                         config: {},
-                        proofs: {}
+                        proofs: []
                     };
 
                     this.initialReducer = new InitialReducer();
                     this.configReducer = new ConfigReducer();
-                    this.updateReducer = new UpdateReducer();
+                    this.proofReducer = new ProofReducer();
                     this.setState = () => { };
                 }
 
@@ -44511,6 +44505,7 @@
                     console.log(json);
                     this.initialReducer.reduce(json, this.state);
                     this.configReducer.reduce(json, this.state);
+                    this.proofReducer.reduce(json, this.state);
                     this.setState(this.state);
                 }
             }
@@ -44580,11 +44575,10 @@
               }
 
               proofAdd(keybaseUsername, token) {
-                console.log(config, badges);
                 return this.action("keybase", "keybase-action", {
                   add: {
                     "kb_username": keybaseUsername,
-                    "sug_hash": token
+                    "sig_hash": token
                   }
                 });
               }
@@ -48840,48 +48834,62 @@
 
               render() {
                 const { props, state } = this;
-
+                console.log(props, state);
                 let selectedClass = (props.selected === "me") ? "bg-gray4 bg-gray1-d" : "bg-white bg-gray0-d";
 
                 let rootIdentity = react.createElement(Link, {
                         key: 1,
-                        to: "/~keybase/me", __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 16}}
+                        to: "/~keybase/me", __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 17}}
                         , react.createElement('div', {
                           className: 
                             "w-100 pl4 pt1 pb1 f9 flex justify-start content-center " +
-                            selectedClass, __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 19}}
+                            selectedClass, __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 20}}
                           , react.createElement(Sigil, {
                           ship: window.ship,
                           color: "#000000",
                           classes: "mix-blend-diff",
-                          size: 32, __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 23}})
+                          size: 32, __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 24}})
                           , react.createElement('p', {
                             className: "f9 w-70 dib v-mid ml2 nowrap mono"      ,
-                            style: {paddingTop: 6}, __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 28}}
+                            style: {paddingTop: 6}, __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 29}}
                             , cite(window.ship)
                           )
                         )
                       );
 
-
                 let activeClasses = (this.props.activeDrawer === "keybase") ? "" : "dn-s";
+                let keybaseProofs = null;
+                if (!!props.proofs.signatures) {
+                  keybaseProofs = props.proofs.signatures.map((each, i) => {
+                    console.log(each, i);
+                    return (
+                      react.createElement(Link, { to: `/~keybase/proofs/${i}`, key: i, __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 43}}
+                        , react.createElement('div', { className: "w-100 v-mid f9 ph4 z1 pv1"     , __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 44}}
+                          , react.createElement('p', { className: "f9 dib" , __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 45}}, each["kb_username"])
+                        )
+                      )
+                    )
+                  });
+                }
 
                 return (
                   react.createElement('div', { className: "bn br-m br-l br-xl b--gray4 b--gray1-d lh-copy h-100 " +
                    "flex-basis-30-ns flex-shrink-0 mw5-m mw5-l mw5-xl flex-basis-100-s " +
-                    "relative overflow-hidden pt3 pt0-m pt0-l pt0-xl " + activeClasses, __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 40}}
-                    , react.createElement('a', { className: "db dn-m dn-l dn-xl f8 pb6 pl3"      , href: "/", __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 43}}, "⟵ Landscape" )
-                    , react.createElement('div', { className: "overflow-auto pb8 h-100"  , __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 44}}
-                      , react.createElement(Link, { to: "/~keybase/new", className: "dib", __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 45}}
-                        , react.createElement('p', { className: "f9 pt4 pl4 green2 bn"    , __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 46}}, "Create Config" )
+                    "relative overflow-hidden pt3 pt0-m pt0-l pt0-xl " + activeClasses, __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 53}}
+                    , react.createElement('a', { className: "db dn-m dn-l dn-xl f8 pb6 pl3"      , href: "/", __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 56}}, "⟵ Landscape" )
+                    , react.createElement('div', { className: "overflow-auto pb8 h-100"  , __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 57}}
+                      , react.createElement(Link, { to: "/~keybase/new", className: "dib", __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 58}}
+                        , react.createElement('p', { className: "f9 pt4 pl4 green2 bn"    , __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 59}}, "Create Config" )
                       )
-                      , react.createElement(Welcome, { proof: props.proof, __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 48}})
-                      , react.createElement('h2', { className: "f9 pt4 pr4 pb2 pl4 gray2 c-default"      , __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 49}}, "Your Config" )
-                      , react.createElement(Link, { to: "/~keybase/config", className: "dib", __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 50}}
-                        , react.createElement('p', { className: "f9 ph4 pb2 fw6 gray3"    , __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 51}}, "config.json")
+                      , react.createElement(Welcome, { proof: props.proof, __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 61}})
+                      , react.createElement('h2', { className: "f9 pt4 pr4 pb2 pl4 gray2 c-default"      , __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 62}}, "Your Config" )
+                      , react.createElement(Link, { to: "/~keybase/config", className: "dib", __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 63}}
+                        , react.createElement('p', { className: "f9 ph4 pb2 fw6 gray3"    , __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 64}}, "config.json")
                       )
-                      , react.createElement('h2', { className: "f9 pt4 pr4 pb2 pl4 gray2 c-default"      , __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 53}}, "Your Proof" )
-
+                      , react.createElement('div', { className: "pt1", __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 66}}
+                        , react.createElement('h2', { className: "f9 pt4 pr4 pb2 pl4 gray2 c-default"      , __self: this, __source: {fileName: _jsxFileName$4, lineNumber: 67}}, "Proofs")
+                        ,  keybaseProofs 
+                      )
                     )
                   )
                 );
@@ -48904,11 +48912,12 @@
                         history: props.history,
                         api: api,
                         config: props.config,
-                        proofs: props.proofs, __self: this, __source: {fileName: _jsxFileName$5, lineNumber: 17}}
+                        proofs: props.proofs,
+                        selected: this.props.selected, __self: this, __source: {fileName: _jsxFileName$5, lineNumber: 17}}
                       )
-                      , react.createElement('div', {
-                        className: "h-100 w-100 relative " + rightPanelClasses,
-                        style: { flexGrow: 1 }, __self: this, __source: {fileName: _jsxFileName$5, lineNumber: 24}}
+                        , react.createElement('div', { className: "h-100 w-100 flex-auto relative"   , style: {
+                          flexGrow: 1,
+                        }, __self: this, __source: {fileName: _jsxFileName$5, lineNumber: 25}}
                         , props.children
                       )
                     )
@@ -57608,39 +57617,22 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
 
               render() {
                 const { props, state } = this;
-                // let displayNameErrElem = (<span />);
-                // if (this.state.displayNameError) {
-                //   displayNameErrElem = (
-                //     <span className="f9 inter red2 ml3 mt1 db">
-                //       Keybase Identity Service must have a name.
-                //     </span>
-                //     );
-                // }
-                //
-                // let domainErrElem = (<span />);
-                // if (this.state.domainError) {
-                //   domainErrElem = (
-                //     <span className="f9 inter red2 ml3 mt1 db">
-                //       Keybase Identity Service must have a contact email.
-                //     </span>
-                //     );
-                // }
 
                 return (
-                  react.createElement('div', { className: "h-100 w-100 mw6 pa3 pt4 overflow-x-hidden bg-gray0-d white-d flex flex-column"         , __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 34}}
-                    , react.createElement('div', { className: "w-100 dn-m dn-l dn-xl inter pt1 pb6 f8"       , __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 35}}
-                      , react.createElement(Link, { to: "/~keybase/", __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 36}}, "⟵ Keybase")
+                  react.createElement('div', { className: "h-100 w-100 mw6 pa3 pt4 overflow-x-hidden bg-gray0-d white-d flex flex-column"         , __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 17}}
+                    , react.createElement('div', { className: "w-100 dn-m dn-l dn-xl inter pt1 pb6 f8"       , __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 18}}
+                      , react.createElement(Link, { to: "/~keybase/", __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 19}}, "⟵ Keybase")
                     )
-                    , react.createElement('div', { className: "w-100 mb4 pr6 pr0-l pr0-xl"    , __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 38}}
+                    , react.createElement('div', { className: "w-100 mb4 pr6 pr0-l pr0-xl"    , __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 21}}
 
                       , react.createElement('div', { className: "fl ma2 bg-white bg-gray0-d white-d overflow-hidden " +
-                      "ba b--black b--gray1-d pa2 w-100 lh-copy", __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 40}}
-                        , react.createElement('p', { className: "f9", __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 42}}, "To send us the config, you can send us the public URL for your config file or attach it directly in a Keybase chat message to @mlsteele or email miles@keyba.se."                             )
-                        , react.createElement('p', { className: "f9 pt2" , __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 43}}, "In our example the file is hosted at https://keybase.io/.well-known/example-proof-config.json."        )
+                      "ba b--black b--gray1-d pa2 w-100 lh-copy", __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 23}}
+                        , react.createElement('p', { className: "f9", __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 25}}, "To send us the config, you can send us the public URL for your config file or attach it directly in a Keybase chat message to @mlsteele or email miles@keyba.se."                             )
+                        , react.createElement('p', { className: "f9 pt2" , __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 26}}, "In our example the file is hosted at https://keybase.io/.well-known/example-proof-config.json."        )
                       )
                       , react.createElement('div', { className: "fl ma2 bg-white bg-gray0-d white-d overflow-hidden " +
-                      "ba b--black b--gray1-d pa2 w-100 lh-copy", __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 45}}
-                        , react.createElement('code', {__self: this, __source: {fileName: _jsxFileName$7, lineNumber: 47}}, JSON.stringify(props.config, null, 2))
+                      "ba b--black b--gray1-d pa2 w-100 lh-copy", __self: this, __source: {fileName: _jsxFileName$7, lineNumber: 28}}
+                        , react.createElement('code', {__self: this, __source: {fileName: _jsxFileName$7, lineNumber: 30}}, JSON.stringify(props.config, null, 2))
                       )
                     )
                   )
@@ -57648,7 +57640,38 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
               }
             }
 
-            const _jsxFileName$8 = "/Users/jose/urbit/keybase/src/js/components/submit-proof.js";
+            const _jsxFileName$8 = "/Users/jose/urbit/keybase/src/js/components/proof.js";
+            class Proof extends react_1 {
+              constructor(props) {
+                super(props);
+              }
+
+              render() {
+                const { props, state } = this;
+                console.log(props, state);
+                return (
+                  react.createElement('div', { className: "h-100 w-100 mw6 pa3 pt4 overflow-x-hidden bg-gray0-d white-d flex flex-column"         , __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 17}}
+                    , react.createElement('div', { className: "w-100 dn-m dn-l dn-xl inter pt1 pb6 f8"       , __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 18}}
+                      , react.createElement(Link, { to: "/~keybase/", __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 19}}, "⟵ Keybase")
+                    )
+                    , react.createElement('div', { className: "w-100 mb4 pr6 pr0-l pr0-xl"    , __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 21}}
+
+                      , react.createElement('div', { className: "fl ma2 bg-white bg-gray0-d white-d overflow-hidden " +
+                      "ba b--black b--gray1-d pa2 w-100 lh-copy", __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 23}}
+                        , react.createElement('p', { className: "f9", __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 25}}, "Keybase needs to check the proof periodically on the Identity Service to ensure that the user has not removed it. Similarly, the Identity Service may want to know if the user has revoked the proof on Keybase. For this reason, there is a protocol for both services to request the current state from one another. Keybase will always check the Identity Services’ proofs, but it is optional for Identity Services to check Keybase’s proofs."                                                                         )
+                        , react.createElement('p', { className: "f9 pt2" , __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 26}}, "Keybase clients check all of the proofs of all of the users they interact with at most once-per-day. So you can expect load correlated with the number of proofs and related activity on Keybase."                                 )
+                      )
+                      , react.createElement('div', { className: "fl ma2 bg-white bg-gray0-d white-d overflow-hidden " +
+                      "ba b--black b--gray1-d pa2 w-100 lh-copy", __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 28}}
+                        , react.createElement('code', {__self: this, __source: {fileName: _jsxFileName$8, lineNumber: 30}}, JSON.stringify(props.proof, null, 2))
+                      )
+                    )
+                  )
+                );
+              }
+            }
+
+            const _jsxFileName$9 = "/Users/jose/urbit/keybase/src/js/components/submit-proof.js";
             class SubmitProof extends react_1 {
               constructor(props) {
                 super(props);
@@ -57667,7 +57690,7 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
                   success: true,
                   awaiting: true
                 }, () => {
-                  props.api.proof.add(state.keybaseUsername, state.token)
+                  props.api.proof.add(props.keybaseUsername, props.token)
                     .then(() => {
                     this.setState({awaiting: false});
                     // props.history.push(`/~keybase/proof`);
@@ -57676,66 +57699,69 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
               }
 
               render() {
-                let displayNameErrElem = (react.createElement('span', {__self: this, __source: {fileName: _jsxFileName$8, lineNumber: 35}} ));
+                let displayNameErrElem = (react.createElement('span', {__self: this, __source: {fileName: _jsxFileName$9, lineNumber: 35}} ));
                 if (this.props.patp === ship) {
                   displayNameErrElem = (
-                    react.createElement('span', { className: "f9 inter red2 ml3 mt1 db"     , __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 38}}, "This is not the ship we were looking for..."
+                    react.createElement('span', { className: "f9 inter red2 ml3 mt1 db"     , __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 38}}, "This is not the ship we were looking for..."
 
                     )
                     );
                 }
 
                 return (
-                  react.createElement('div', { className: "h-100 w-100 mw6 pa3 pt4 overflow-x-hidden bg-gray0-d white-d flex flex-column"         , __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 45}}
-                    , react.createElement('div', { className: "w-100 dn-m dn-l dn-xl inter pt1 pb6 f8"       , __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 46}}
-                      , react.createElement(Link, { to: "/~keybase/", __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 47}}, "⟵ All Groups")
+                  react.createElement('div', { className: "h-100 w-100 mw6 pa3 pt4 overflow-x-hidden bg-gray0-d white-d flex flex-column"         , __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 45}}
+                    , react.createElement('div', { className: "w-100 dn-m dn-l dn-xl inter pt1 pb6 f8"       , __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 46}}
+                      , react.createElement(Link, { to: "/~keybase/", __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 47}}, "⟵ All Groups")
                     )
-                    , react.createElement('div', { className: "w-100 mb4 pr6 pr0-l pr0-xl"    , __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 49}}
+                    , react.createElement('div', { className: "w-100 mb4 pr6 pr0-l pr0-xl"    , __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 49}}
 
                       , react.createElement('div', { className: "fl ma2 bg-white bg-gray0-d white-d overflow-hidden " +
-                      "ba b--black b--gray1-d pa2 w-100 lh-copy", __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 51}}
-                        , react.createElement('p', { className: "f9", __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 53}}, "This proof should be stored forever unless it is updated or deleted by the user."              )
-                        , react.createElement('p', { className: "f9 pt2" , __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 54}}, "The Identity Service validates the signature with Keybase and saves this data so it can be served during the Proof Checking flow."                     )
-                        , react.createElement('p', { className: "f9 pt2" , __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 55}}, "You need to review that your Keybase username is correct. Then by clicking \"Save Keybase Proof\" you will authorizes the cryptographic connection."                     )
+                      "ba b--black b--gray1-d pa2 w-100 lh-copy", __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 51}}
+                        , react.createElement('p', { className: "f9", __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 53}}, "This proof should be stored forever unless it is updated or deleted by the user."              )
+                        , react.createElement('p', { className: "f9 pt2" , __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 54}}, "The Identity Service validates the signature with Keybase and saves this data so it can be served during the Proof Checking flow."                     )
+                        , react.createElement('p', { className: "f9 pt2" , __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 55}}, "You need to review that your Keybase username is correct."         )
+                        , react.createElement('p', { className: "f9 pt2" , __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 56}}, "Then by clicking \"Store Proof\" you will authorizes the cryptographic connection and store the proof on your ship."                 )
 
-                        , react.createElement('h2', { className: "f8 pt6" , __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 57}}, "Proof Validation" )
+                        , react.createElement('h2', { className: "f8 pt6" , __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 58}}, "Proof Validation" )
 
-                        , react.createElement('h2', { className: "f8", __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 59}}, "Keybase Username" )
+                        , react.createElement('h2', { className: "f8", __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 60}}, "Keybase Username" )
                         , react.createElement('textarea', {
                           className: 
                             "f7 ba b--gray3 b--gray2-d bg-gray0-d white-d pa3 db w-100 mt2 " +
                             "focus-b--black focus-b--white-d"
                           ,
+                          readOnly: true,
+                          defaultValue: this.props.keybaseUsername,
                           rows: 1,
                           style: {
                             resize: "none",
                             height: 48,
                             paddingTop: 14
-                          }, __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 60}}
-                        , "this.props.keybaseUsername;"
-
+                          }, __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 61}}
+                        
                         )
                         , displayNameErrElem
 
-                        , react.createElement('h2', { className: "f8 pt6" , __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 76}}, "Token")
+                        , react.createElement('h2', { className: "f8 pt6" , __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 78}}, "Token")
                         , react.createElement('textarea', {
                           className: 
                             "f7 ba b--gray3 b--gray2-d bg-gray0-d white-d pa3 db w-100 mt2 " +
                             "focus-b--black focus-b--white-d"
                           ,
+                          readOnly: true,
+                          defaultValue: this.props.token,
                           rows: 1,
                           style: {
                             resize: "none",
                             height: 48,
                             paddingTop: 14
-                          }, __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 77}}
-                          , "this.props.token;"
-
+                          }, __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 79}}
+                          
                           )
 
                         , react.createElement('button', {
                           onClick: this.onClickSave.bind(this),
-                          className: "f9 ba pa2 b--green2 green2 pointer bg-transparent"      , __self: this, __source: {fileName: _jsxFileName$8, lineNumber: 92}}, "Save Keybase Proof"
+                          className: "f9 ba pa2 b--green2 green2 pointer bg-transparent"      , __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 95}}, "Store Proof"
 
                         )
                       )
@@ -57745,7 +57771,7 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
               }
             }
 
-            const _jsxFileName$9 = "/Users/jose/urbit/keybase/src/js/components/root.js";
+            const _jsxFileName$a = "/Users/jose/urbit/keybase/src/js/components/root.js";
 
             class Root extends react_1 {
               constructor(props) {
@@ -57764,25 +57790,27 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
                 let config = !!state.config ? state.config : {};
                 let proofs = !!state.proofs ? state.proofs : {};
                 return (
-                  react.createElement(BrowserRouter, {__self: this, __source: {fileName: _jsxFileName$9, lineNumber: 30}}
-                    , react.createElement('div', { className: "h-100 w-100" , __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 31}}
+                  react.createElement(BrowserRouter, {__self: this, __source: {fileName: _jsxFileName$a, lineNumber: 31}}
+                    , react.createElement('div', { className: "h-100 w-100" , __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 32}}
                       , react.createElement(Route, { exact: true, path: "/~keybase",
                         render:  (props) => {
                           return (
                             react.createElement(Skeleton, {
                               activeDrawer: "keybase",
                               history: props.history,
-                              api: api$1, __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 35}}
-                              , react.createElement('div', { className: "h-100 w-100 overflow-x-hidden bg-white bg-gray0-d dn db-ns"      , __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 39}}
-                                , react.createElement('div', { className: "pl3 pr3 pt2 dt pb3 w-100 h-100"      , __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 40}}
-                                  , react.createElement('p', { className: "f9 pt3 gray2 w-100 h-100 dtc v-mid tc"       , __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 41}}, "Create a config to begin cliking on \"Create Config\"."
+                              config: config,
+                              proofs: proofs,
+                              api: api$1, __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 36}}
+                              , react.createElement('div', { className: "h-100 w-100 overflow-x-hidden flex flex-column bg-white bg-gray0-d dn db-ns"        , __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 42}}
+                                , react.createElement('div', { className: "pl3 pr3 pt2 dt pb3 w-100 h-100"      , __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 43}}
+                                  , react.createElement('p', { className: "f9 pt3 gray2 w-100 h-100 dtc v-mid tc"       , __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 44}}, "Do Keybase things now or I'll talk to you again"
 
                                   )
                                 )
                               )
                             )
                           );
-                        }, __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 32}} )
+                        }, __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 33}} )
                       , react.createElement(Route, { exact: true, path: "/~keybase/new",
                         render:  (props) => {
                           return (
@@ -57791,14 +57819,14 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
                               api: api$1,
                               config: config,
                               proofs: proofs,
-                              activeDrawer: "rightPanel", __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 52}}
+                              activeDrawer: "rightPanel", __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 55}}
                               , react.createElement(NewScreen, {
                                 history: props.history,
-                                api: api$1, __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 58}}
+                                api: api$1, __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 61}}
                               )
                             )
                           );
-                      }, __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 49}} )
+                      }, __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 52}} )
                       , react.createElement(Route, { exact: true, path: "/~keybase/config",
                         render:  (props) => {
                           return (
@@ -57807,15 +57835,32 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
                               api: api$1,
                               config: config,
                               proofs: proofs,
-                              activeDrawer: "rightPanel", __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 68}}
+                              activeDrawer: "rightPanel", __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 71}}
                               , react.createElement(ConfigScreen, {
                                 history: props.history,
                                 api: api$1,
-                                config: config, __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 74}}
+                                config: config, __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 77}}
                               )
                             )
                           );
-                      }, __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 65}} )
+                      }, __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 68}} )
+                      , react.createElement(Route, { exact: true, path: "/~keybase/proofs/:index",
+                        render:  (props) => {
+                          return (
+                            react.createElement(Skeleton, {
+                              history: props.history,
+                              api: api$1,
+                              config: config,
+                              proofs: proofs,
+                              activeDrawer: "rightPanel", __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 88}}
+                              , react.createElement(Proof, {
+                                history: props.history,
+                                api: api$1,
+                                proof: proofs.signatures[props.match.params.index], __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 94}}
+                              )
+                            )
+                          );
+                      }, __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 85}} )
                       , react.createElement(Route, { exact: true, path: "/~keybase/submit-proof/notebook/:kb_username/:patp/:token/:kb_ua?",
                         render:  (props) => {
                           const keybaseUsername =  props.match.params.kb_username;
@@ -57828,18 +57873,18 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
                               api: api$1,
                               config: config,
                               proofs: proofs,
-                              activeDrawer: "rightPanel", __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 89}}
+                              activeDrawer: "rightPanel", __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 109}}
                               , react.createElement(SubmitProof, {
                                 history: props.history,
                                 api: api$1,
                                 keybaseUsername: keybaseUsername,
                                 patp: patp,
                                 token: token,
-                                keybaseAgent: keybaseAgent, __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 95}}
+                                keybaseAgent: keybaseAgent, __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 115}}
                               )
                             )
                           );
-                      }, __self: this, __source: {fileName: _jsxFileName$9, lineNumber: 82}} )
+                      }, __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 102}} )
                     )
                   )
                 );
@@ -57875,7 +57920,7 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
 
             let subscription = new Subscription();
 
-            const _jsxFileName$a = "/Users/jose/urbit/keybase/src/index.js";
+            const _jsxFileName$b = "/Users/jose/urbit/keybase/src/index.js";
             api$1.setAuthTokens({
               ship: window.ship
             });
@@ -57883,7 +57928,7 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
             subscription.start();
 
             reactDom.render((
-              react.createElement(Root, {__self: undefined, __source: {fileName: _jsxFileName$a, lineNumber: 15}} )
+              react.createElement(Root, {__self: undefined, __source: {fileName: _jsxFileName$b, lineNumber: 15}} )
             ), document.querySelectorAll("#root")[0]);
 
 }));

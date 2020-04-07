@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { Route, Link } from 'react-router-dom';
 import { Sigil } from '/components/lib/icons/sigil';
 import { Welcome } from '/components/lib/welcome';
+// import { ProofItem } from '/components/lib/proof-item';
 import { cite } from '/lib/util';
 
 export class KeybaseSidebar extends Component {
@@ -10,7 +11,7 @@ export class KeybaseSidebar extends Component {
 
   render() {
     const { props, state } = this;
-
+    console.log(props, state);
     let selectedClass = (props.selected === "me") ? "bg-gray4 bg-gray1-d" : "bg-white bg-gray0-d";
 
     let rootIdentity = <Link
@@ -33,8 +34,20 @@ export class KeybaseSidebar extends Component {
             </div>
           </Link>
 
-
     let activeClasses = (this.props.activeDrawer === "keybase") ? "" : "dn-s";
+    let keybaseProofs = null;
+    if (!!props.proofs.signatures) {
+      keybaseProofs = props.proofs.signatures.map((each, i) => {
+        console.log(each, i);
+        return (
+          <Link to={`/~keybase/proofs/${i}`} key={i}>
+            <div className="w-100 v-mid f9 ph4 z1 pv1">
+              <p className="f9 dib">{each["kb_username"]}</p>
+            </div>
+          </Link>
+        )
+      });
+    }
 
     return (
       <div className={"bn br-m br-l br-xl b--gray4 b--gray1-d lh-copy h-100 " +
@@ -50,8 +63,10 @@ export class KeybaseSidebar extends Component {
           <Link to="/~keybase/config" className="dib">
             <p className="f9 ph4 pb2 fw6 gray3">config.json</p>
           </Link>
-          <h2 className="f9 pt4 pr4 pb2 pl4 gray2 c-default">Your Proof</h2>
-
+          <div className="pt1">
+            <h2 className="f9 pt4 pr4 pb2 pl4 gray2 c-default">Proofs</h2>
+            { keybaseProofs }
+          </div>
         </div>
       </div>
     );

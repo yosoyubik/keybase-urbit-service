@@ -18,7 +18,7 @@
   ++  proof
     %-  ot
     :~  ['kb_username' so]
-        ['token' so]
+        ['sig_hash' so]
     ==
   ::
   ++  config
@@ -136,18 +136,18 @@
       ['contact' a+(turn contact.config |=(a=@t s+a))]
   ==
 ::
-++  keybase-proof-to-json
+++  keybase-proofs-to-json
   |=  proofs=(map @t keybase-proof)
   ^-  json
-  =,  enjs:format
-  %-  pairs
+  %-  pairs:enjs:format
   :_  ~
   :-  'signatures'
-  :-  %a
-  %+  turn  ~(val by proofs)
+  a+(turn ~(val by proofs) keybase-proof-to-json)
+::
+++  keybase-proof-to-json
   |=  proof=keybase-proof
   ^-  json
-  %-  pairs
+  %-  pairs:enjs:format
   :~  ['kb_username' s+user.proof]
       ['sig_hash' s+token.proof]
   ==

@@ -1,18 +1,18 @@
 import { InitialReducer } from '/reducers/initial';
 import { ConfigReducer } from '/reducers/config';
-import { UpdateReducer } from '/reducers/update';
+import { ProofReducer } from '/reducers/proof';
 
 
 class Store {
     constructor() {
         this.state = {
             config: {},
-            proofs: {}
+            proofs: []
         };
 
         this.initialReducer = new InitialReducer();
         this.configReducer = new ConfigReducer();
-        this.updateReducer = new UpdateReducer();
+        this.proofReducer = new ProofReducer();
         this.setState = () => { };
     }
 
@@ -26,6 +26,7 @@ class Store {
         console.log(json);
         this.initialReducer.reduce(json, this.state);
         this.configReducer.reduce(json, this.state);
+        this.proofReducer.reduce(json, this.state);
         this.setState(this.state);
     }
 }

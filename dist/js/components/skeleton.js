@@ -19,11 +19,12 @@ export class Skeleton extends Component {
             history: props.history,
             api: api,
             config: props.config,
-            proofs: props.proofs, __self: this, __source: {fileName: _jsxFileName, lineNumber: 17}}
+            proofs: props.proofs,
+            selected: this.props.selected, __self: this, __source: {fileName: _jsxFileName, lineNumber: 17}}
           )
-          , React.createElement('div', {
-            className: "h-100 w-100 relative " + rightPanelClasses,
-            style: { flexGrow: 1 }, __self: this, __source: {fileName: _jsxFileName, lineNumber: 24}}
+            , React.createElement('div', { className: "h-100 w-100 flex-auto relative"   , style: {
+              flexGrow: 1,
+            }, __self: this, __source: {fileName: _jsxFileName, lineNumber: 25}}
             , props.children
           )
         )

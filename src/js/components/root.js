@@ -7,6 +7,7 @@ import { HeaderBar } from "./lib/header-bar.js"
 import { Skeleton } from '/components/skeleton';
 import { NewScreen } from '/components/new';
 import { ConfigScreen } from '/components/config';
+import { Proof } from '/components/proof';
 import { SubmitProof } from '/components/submit-proof';
 
 
@@ -35,11 +36,13 @@ export class Root extends Component {
                 <Skeleton
                   activeDrawer="keybase"
                   history={props.history}
+                  config={config}
+                  proofs={proofs}
                   api={api}>
-                  <div className="h-100 w-100 overflow-x-hidden bg-white bg-gray0-d dn db-ns">
+                  <div className="h-100 w-100 overflow-x-hidden flex flex-column bg-white bg-gray0-d dn db-ns">
                     <div className="pl3 pr3 pt2 dt pb3 w-100 h-100">
                       <p className="f9 pt3 gray2 w-100 h-100 dtc v-mid tc">
-                        Create a config to begin cliking on "Create Config".
+                      Do Keybase things now or I'll talk to you again
                       </p>
                     </div>
                   </div>
@@ -75,6 +78,23 @@ export class Root extends Component {
                     history={props.history}
                     api={api}
                     config={config}
+                  />
+                </Skeleton>
+              );
+          }} />
+          <Route exact path="/~keybase/proofs/:index"
+            render={ (props) => {
+              return (
+                <Skeleton
+                  history={props.history}
+                  api={api}
+                  config={config}
+                  proofs={proofs}
+                  activeDrawer="rightPanel">
+                  <Proof
+                    history={props.history}
+                    api={api}
+                    proof={proofs.signatures[props.match.params.index]}
                   />
                 </Skeleton>
               );

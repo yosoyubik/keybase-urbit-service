@@ -64,11 +64,10 @@ class UrbitApi {
   }
 
   proofAdd(keybaseUsername, token) {
-    console.log(config, badges);
     return this.action("keybase", "keybase-action", {
       add: {
         "kb_username": keybaseUsername,
-        "sug_hash": token
+        "sig_hash": token
       }
     });
   }
