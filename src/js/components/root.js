@@ -99,7 +99,7 @@ export class Root extends Component {
                 </Skeleton>
               );
           }} />
-          <Route exact path="/~keybase/submit-proof/notebook/:kb_username/:patp/:token/:kb_ua?"
+          <Route exact path="/~keybase/submit-proof/:kb_username/:patp/:token/:kb_ua?"
             render={ (props) => {
               const keybaseUsername =  props.match.params.kb_username;
               const patp =  props.match.params.patp;

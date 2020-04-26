@@ -108,14 +108,12 @@
     ++  on-watch
       |=  =path
       ^-  (quip card:agent:gall _this)
-      ?:  ?=([%http-response *] path)
-        `this
-      ~&  path
-      ?.  =(/primary path)
-        ~&  [src.bowl path]
-        (on-watch:def path)
       :_  this
-      [%give %fact ~ %json !>(innit-load)]~
+      ?+  path  (on-watch:def path)
+        [%keybasetile ~]    [%give %fact ~ %json !>(*json)]~
+        [%primary *]        [%give %fact ~ %json !>(innit-load)]~
+        [%http-response *]  ~
+      ==
     ::
     ++  on-agent  on-agent:def
     ::
@@ -155,7 +153,8 @@
       %agent
       [our.bowl %launch]
       %poke
-      [%launch-action !>([%keybase /keybasetile '/~keybase/js/tile.js'])]
+      %launch-action
+      !>([%keybase /keybasetile '/~keybase/js/tile.js'])
   ==
 ::
 ++  save-svg-badge
@@ -207,8 +206,14 @@
     =/  proof-update=json
       %-  pairs:enjs:format
       ['proof' (keybase-proof-to-json p)]~
-    :-  [%give %fact ~[/primary] %json !>(proof-update)]~
-    state(proofs (~(put by proofs) [user.p p]))
+    :_  state(proofs (~(put by proofs) [user.p p]))
+    :_  ~
+    :*  %give
+        %fact
+        ~[/primary]
+        %json
+        !>(proof-update)
+    ==
   ::
   ++  handle-remove
     |=  user=@t
@@ -349,8 +354,7 @@
               "kb_username={(trip user.proof)}&"
               "username={(trip (scot %p our.bowl))}&"
               "sig_hash={(trip token.proof)}"
-          ==
-      ==
+      ==  ==
     =/  =path  ~[%check-proof user.proof (scot %da now.bowl)]
     [%pass path %arvo %i %request request *outbound-config:iris]~
   ::

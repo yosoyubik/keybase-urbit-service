@@ -11,7 +11,7 @@
 ::
 ++  grow                                                ::  convert to
   |%                                                    ::
-  ++  mime  [image/'svg+xml' (as-octs svg)]             ::  to %mime
+  ++  mime  [/image/'svg+xml' (as-octs svg)]            ::  to %mime
   ++  hymn  (need (de-xml svg))                         ::  to %hymn
   --                                                    ::
 ++  grab

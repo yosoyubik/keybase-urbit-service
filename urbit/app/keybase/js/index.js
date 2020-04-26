@@ -30,10 +30,6 @@
             	return module = { exports: {} }, fn(module, module.exports), module.exports;
             }
 
-            function getCjsExportFromNamespace (n) {
-            	return n && n['default'] || n;
-            }
-
             /*
             object-assign
             (c) Sindre Sorhus
@@ -50887,13 +50883,7 @@
               return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isFastBuffer(obj.slice(0, 0))
             }
 
-            var empty = {};
-
-            var empty$1 = /*#__PURE__*/Object.freeze({
-                        'default': empty
-            });
-
-            var require$$0 = getCjsExportFromNamespace(empty$1);
+            var require$$0 = {};
 
             var bn = createCommonjsModule(function (module) {
             (function (module, exports) {
@@ -57861,7 +57851,7 @@ lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
                             )
                           );
                       }, __self: this, __source: {fileName: _jsxFileName$a, lineNumber: 85}} )
-                      , react.createElement(Route, { exact: true, path: "/~keybase/submit-proof/notebook/:kb_username/:patp/:token/:kb_ua?",
+                      , react.createElement(Route, { exact: true, path: "/~keybase/submit-proof/:kb_username/:patp/:token/:kb_ua?",
                         render:  (props) => {
                           const keybaseUsername =  props.match.params.kb_username;
                           const patp =  props.match.params.patp;

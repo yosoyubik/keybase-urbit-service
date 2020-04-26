@@ -99,7 +99,7 @@ export class Root extends Component {
                 )
               );
           }, __self: this, __source: {fileName: _jsxFileName, lineNumber: 85}} )
-          , React.createElement(Route, { exact: true, path: "/~keybase/submit-proof/notebook/:kb_username/:patp/:token/:kb_ua?",
+          , React.createElement(Route, { exact: true, path: "/~keybase/submit-proof/:kb_username/:patp/:token/:kb_ua?",
             render:  (props) => {
               const keybaseUsername =  props.match.params.kb_username;
               const patp =  props.match.params.patp;
